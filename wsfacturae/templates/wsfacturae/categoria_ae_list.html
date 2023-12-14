@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load filter_functions %}
+{% block nav-ws %}class="active"{% endblock %}
+{% block nav-actividadeco %}class="active"{% endblock %}
+{% block title %}
+<h1>URL</h1>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1>Categoría Actividad Económica</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'wsfacturae:CatactividadecoAdd'%}" ><span class="ladda-button badge badge-primary"><h5> <i class="fa fa-plus-circle"></i>&nbsp; Crear Nueva Categoría</h5></span> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+
+                            <td> {{ obj.descripcion }} </td>
+                            <td> {{ obj.get_nm_estado_display }}  </td>
+                            <td><a  title="Ver" data-toggle="modal" data-target="#modal-{{ obj.id }}">
+                                    <span class="badge badge-primary"><i class="fa fa-archive"></i>&nbsp; Ver Detalle &nbsp;</span>
+                                </a></td>
+                            <td><a href="{% url 'wsfacturae:CatactividadecoUpdate' pk=obj.id %}" ><span class="badge badge-warning"><i class="fa fa-edit"></i> Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{% url 'wsfacturae:CatactividadecoDelete' pk=obj.id %}" ><span class="badge badge-danger"><i class="fa fa-times-circle"></i> Eliminar</span></a></td>
+                        {% empty %}
+                            <td> No existen categorías configurados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+{% for obj in object_list %}
+<div class="modal fade" id="modal-{{ obj.id }}" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content animated bounceInRight">
+
+          <div class="modal-header">
+                <div class="row">
+                <div class="col-lg-10">
+                    <strong>{{ obj.descripcion }} </strong>
+                </div>
+                <div class="col-lg-2 float-right">
+                        <a href="{% url 'wsfacturae:SubCatactividadecoAdd' pk=obj.id %}" ><span class="badge badge-primary float-right"><h5><i class="fa fa-plus-circle"></i>&nbsp;AÑADIR SUB CATEGORÍA </h5></span></a>
+                </div>
+                </div>
+
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+
+                            <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Estado</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% muestra_subcatae obj.id %}
+                            </tbody>
+                            </table>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+ {% endfor %}
+{% endblock %}
+

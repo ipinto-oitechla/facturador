@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load filter_functions %}
+{% block nav-ws %}class="active"{% endblock %}
+{% block nav-tributo %}class="active"{% endblock %}
+{% block title %}
+<h1>URL</h1>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1>Tributo</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'wsfacturae:TributoAdd'%}" ><span class="ladda-button badge badge-primary"><h5> <i class="fa fa-plus-circle"></i>&nbsp; Crear Nuevo Tributo</h5></span> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Sección</th>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td> {{ obj.get_seccion_display }} </td>
+                            <td> {{ obj.codigo }} </td>
+                            <td> {{ obj.descripcion }} </td>
+                            <td> {{ obj.get_tipo_display }} </td>
+                            <td> {{ obj.valor }} </td>
+                            <td> {{ obj.get_nm_estado_display }}  </td>
+                            <td><a href="{% url 'wsfacturae:TributoUpdate' pk=obj.id %}" ><span class="badge badge-warning"><i class="fa fa-edit"></i> Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{% url 'wsfacturae:TributoDelete' pk=obj.id %}" ><span class="badge badge-danger"><i class="fa fa-times-circle"></i> Eliminar</span></a></td>
+                        {% empty %}
+                            <td> No existen tributos configurados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}
+

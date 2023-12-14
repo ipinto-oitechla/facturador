@@ -1,0 +1,124 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load widget_tweaks %}
+{% load crispy_forms_tags %} 
+{% load humanize %} 
+{% load filter_functions %}
+  {% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-establecimiento %}class="active"{% endblock %}
+
+{%block main%}
+<div class="ibox-content">
+    <h1><b>Lista de establecimientos</b></h1>
+    <div class="ibox-title">
+        
+    </div>
+    <div class="d-flex flex-row-reverse mb-3 align-items-center">
+
+        <a href="{%url 'wsfacturae:EstablecimientoAdd'%}"><button class="btn btn-primary" type="button"><i class="fa fa-plus-circle"></i> Añadir Establecimiento</button></a>
+        <input id="search-estable" class="form-control mr-5"></input> <h3 class="mr-3">Buscar: </h3>
+    </div>
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <th style="width:150px">Tipo</th>
+            <th>Departamento</th>
+            <th>Municipio</th>
+            <th>Telefono</th>
+            <th>Código establec.</th>
+            <th>Código establec. MH</th>
+            <th style="width:100px"></th>
+            <th style="width:100px"></th>
+            <th style="width:100px"></th>
+
+        </thead>
+        <tbody id="table-body">
+            {%for object in object_list%}
+            <tr>
+                <td>{{object.tipoEstable}}</td>
+                <td>{{object.direccionMun.departamento.descripcion}}</td>
+                <td>{{object.direccionMun.descripcion}}</td>
+                <td>{{object.telefono}}</td>
+                <td>{{object.codestablec}}</td>
+                {%if object.codestablemh%}
+                    <td>{{object.codestablemh}}</td>
+                    {%else%}
+                    <td>------</td>
+                {%endif%}
+                <td><a  title="Ver" data-toggle="modal" data-target="#modal-{{ object.id }}">
+                    <span class="badge badge-primary"><i class="fa fa-archive"></i>&nbsp; Ver Detalle &nbsp;</span>
+                </a></td>
+                <td><a href="{%url 'wsfacturae:EstablecimientoUpdate' pk=object.id%}" ><span class="badge badge-warning"><i class="fa fa-edit"></i> Actualizar</span></a></td>
+                <td><a class="confirmacion" href="{% url 'wsfacturae:EstablecimientoDelete' pk=object.id %}"><span class="badge badge-danger"><i class="fa fa-times-circle"></i> Eliminar</span></a></td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+{% for obj in object_list %}
+<div class="modal fade" id="modal-{{ obj.id }}" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content animated bounceInRight">
+
+          <div class="modal-header">
+                <div class="row d-flex flex-column col-lg-12">
+                    <h1 class="ml-2"><b>Lista de puntos de venta</b></h1>
+                        <div class=""><a href="{%url 'wsfacturae:PuntoVentaAdd' pk=obj.id%}" ><span class="badge badge-primary float-right"><h5><i class="fa fa-plus-circle"></i>&nbsp;AÑADIR ÍTEM AL CATÁLOGO</h5></span></a></div>
+                </div>
+
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+
+                            <table class="table table-striped">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Establecimiento id</th>
+                                <th>Codigo punto de venta</th>
+                                <th>Codigo punto de venta MH</th>
+                                <th>Operacion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% muestra_puntoven obj.id %}
+                            </tbody>
+                            </table>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+ {% endfor %}
+ <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchEstablecimiento = document.getElementById("search-estable");
+        const tableBody = document.getElementById("table-body");
+    
+        searchEstablecimiento.addEventListener("input", function () {
+          const searchTerm = this.value.trim().toLowerCase();
+          const rows = tableBody.querySelectorAll("tr");
+    
+          rows.forEach((row) => {
+            const estableCodigo = row
+              .querySelector("td:nth-child(5)")
+              .textContent.toLowerCase();
+              const estableTipo = row
+              .querySelector("td:nth-child(1)")
+              .textContent.toLowerCase();
+            if (estableCodigo.includes(searchTerm)||estableTipo.includes(searchTerm)) {
+              row.style.display = "table-row";
+            } else {
+              row.style.display = "none";
+            }
+          });
+        });
+      });
+ </script>    
+{%endblock%}

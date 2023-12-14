@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load static %}
+{% load humanize %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-2">
+
+    </div>
+
+
+    <div class="col-lg-6">
+        <div id="ibox1" class="ibox float-e-margins">
+            <div class="ibox-content">
+                <div class="sk-spinner sk-spinner-three-bounce">
+                    <div class="sk-bounce1"></div>
+                    <div class="sk-bounce2"></div>
+                    <div class="sk-bounce3"></div>
+                </div>
+
+                <img src="{% static 'images/check.png' %}" style="display: block;margin-left: auto;margin-right: auto;width: 25%;" ></img>
+                <center>
+                <h4>Datos del crédito generado: </h4><br>
+                <h4><strong>ID:</strong> {{ view.credito.id|stringformat:"06d" }} </h4>
+
+                <h4>Monto :$ {{ view.credito.montootorgado|intcomma }}</h4>
+                    <h4>Tasa : {{ view.credito.interespct }}%</h4>
+                     <h4>Total a Recibir :$ {{ view.credito.montoyinterestotal|intcomma }}</h4>
+                     <br>
+                    <p> Inicio:  {{ view.credito.fechaini   }}  &nbsp;&nbsp;
+                                    Vencimiento: {{ view.credito.fechaven  }}&nbsp;&nbsp;
+                                    Días:  {{ view.credito.qtydiascuota  }}
+                                 </p>
+
+
+                     <p> Cuota: $ {{ view.credito.totalcuota|intcomma   }}  &nbsp;&nbsp;
+                                    Capital: $ {{ view.credito.capitalcuota|intcomma  }}&nbsp;&nbsp;
+                                    Interés: $ {{ view.credito.interescuota|intcomma  }}
+                                 </p>
+
+
+
+                                <p> Capital Total: $ {{ view.credito.montootorgado|intcomma  }}
+                                 Interés Total: $ {{ view.credito.interestotal|intcomma  }}  </p>
+
+                    <h4><span class="label label-success">Crédito registrado satisfactoriamente</span></h4>
+                    <br>
+                    <a href="{% url 'cobrox:Archivos_creditoAdd' pk=view.credito.id %}"  >
+                                        <span class="badge badge-primary"> <i class="fa fa-upload"></i> Cargar Archivos</span>
+                                    </a>
+                    <br><br><br>
+
+                    <a  title="Ir a Inicio"  href="{% url 'cobrox:ClienteList' %}"><button type="button" class="btn btn-outline btn-success"><h3><i class="fa fa-backward"></i>&nbsp;&nbsp;Regresar a clientes &nbsp;&nbsp;</h3></button></a>
+                </center>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+                    <div class="col-lg-4 text-center">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+                        <div class="m-b-sm">
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <strong>
+                            General
+                        </strong>
+                        <p>
+                            <p><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</p>
+                            <p><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</p>
+                            <p><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</p>
+                            <p><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</p>
+                            {% if view.cliente.celular %}
+                                <p><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</p>
+                            {% endif %}
+                            <p><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</p>
+                            {% if view.cliente.codigo %}
+                                <p><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</p>
+                            {% endif %}
+                        </p>
+
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+    {% endblock %}
+
+
+{% block ss2 %}
+<script>
+$(function(){
+  swal({
+                title: "Buen trabajo!",
+                text: "La transacción se ha completado satisfactoriamente!",
+                type: "success"
+            });
+})
+</script>
+{% endblock %}
+

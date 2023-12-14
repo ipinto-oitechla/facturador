@@ -1,0 +1,108 @@
+{% load humanize %}
+<div class="row">
+
+        {%  if not error %}
+        <div class="col-lg-6">
+                <div class="widget navy-bg no-padding">
+                    <div class="p-m">
+                        <h1 class="m-xs">Monto: $ {{ montootorgado|intcomma }}</h1><br>
+
+                        <h3 class="font-bold no-margins">
+                                <strong>Tasa de interés</strong>: {{ interespct }} %<br>
+                        </h3>
+                        <br>
+                        <div class="row" >
+                                <div class="col-lg-4">
+                                    <small>Fecha de Inicio </small><br>
+                                    <small>Fecha de Vto </small>
+                                   </div>
+                                <div class="col-lg-4 text-right">
+                                    {{ fechaini }} <br>
+                                    {{ fechaven }}
+                                    </div>
+                            <div class="col-lg-4">
+                                <small>Días</small><br>
+                                 <strong>{{ qtydiascuota }}</strong>
+                                   </div>
+                            </div>
+
+
+
+                    </div>
+
+                </div>
+        </div>
+        <div class="col-lg-6">
+                <div class="widget navy-bg no-padding">
+                    <div class="p-m">
+
+                        <h4 class="font-bold no-margins">
+                                <div class="row" >
+                                <div class="col-lg-6">
+
+                                        <strong>Cuota Total</strong>:<br><br>
+                                       <small>Cuota Capital</small>:<br>
+                                       <small>Cuota Interés</small>:<br><br>
+
+                                       Interés Total:<br><br>
+                                       Monto + Int. Total:
+                                </div>
+                                <div class="col-lg-6 text-right">
+
+
+                                        $ {{ totalcuota|intcomma  }}<br><br>
+                                        $ {{ capitalcuota|intcomma  }}<br>
+                                        $ {{ interescuota|intcomma  }}<br><br>
+                                    <h4>$ {{ interestotal|intcomma  }}</h4>
+                                    <h4>$ {{ otorinterestotal|intcomma  }}</h4>
+                                </div>
+                                </div>
+
+                        </h4>
+
+                    </div>
+
+                </div>
+        </div>
+
+
+        {% else %}
+            <div class="col-lg-12 alert alert-warning">
+                <i class="fa fa-warning"></i>&nbsp;{{ mensaje }}
+
+            </div>
+
+        {% endif %}
+
+</div>
+<div class="row">
+          <div class="col-lg-12">
+              <div class="ibox">
+
+                    <div class="ibox-content text-center p-md">
+                        {% if not error %}
+                            <button class="ladda-button btn btn-info" type="submit" name="action" value="SAVE">
+                                &nbsp;<i class="fa fa-save"></i>&nbsp; Guardar &nbsp;&nbsp;&nbsp;
+                            </button>&nbsp;
+                        {% endif %}
+                        <button id="gen_cancelar" type="button" class="btn btn-w-m btn-primary"><i class="fa fa-edit"></i>&nbsp;Cancelar</button> &nbsp;
+
+                    </div>
+              </div>
+          </div>
+      </div>
+</div>
+<script>
+    Ladda.bind( '.ladda-button', { timeout: 20000 } );
+
+
+    $("#gen_cancelar").click(function () {
+      $('#montootorgado').prop('readonly', true);
+      $('#gen_calculo').prop('disabled', false);
+      $("#divcalculo").html('')
+      $("#orderForm :input").each(function() {
+           $(this).attr("readonly", false);
+        });
+
+    });
+  </script>

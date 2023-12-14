@@ -1,0 +1,15 @@
+{% extends "base_nada.html" %}
+{% block title %}
+Error 500
+{% endblock %}
+
+{% block main %}
+<div class="middle-box text-center animated fadeInDown">
+        <h1>500</h1>
+        <h3 class="font-bold">Error interno</h3>
+        <div class="error-desc">
+            Lo lamentamos, el servidor recibió algo inesperado que le impidió completar la solicitud.
+            <br/><a href="/index.html" class="btn btn-primary m-t">Dashboard</a>
+        </div>
+    </div>
+{% endblock %}

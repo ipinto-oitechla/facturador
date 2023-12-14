@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load filter_functions %}
+{% load static %}
+{% load humanize %}
+{% block main %}
+<div class="row">
+<div class="col-lg-8">
+    <div class="ibox ">
+        <div class="ibox-title ibox-heading">
+            <h3><strong><i class="fa fa-money"></i> Detalle de DTEs</strong></h3>
+        </div>
+        <div class="ibox-content inspinia-timeline">
+            {% for obj in object_list %}
+                <div class="timeline-item">
+                    <div class="row">
+                        <div class="col-4 date">
+
+                            <i class="fa fa-calendar"></i></i>
+                            <small class="text-navy">Fecha Documento: &nbsp;{{ obj.fechaini |date:'d-b-Y ' }}</small><br>
+
+                            <br/><br/><br/>
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+
+                            {% revigenciaestadocredito obj.saldopendiente obj.fechaven obj.estadocredito as liked_by_user_flag %}
+                            {% if liked_by_user_flag == 0  %}
+                                <span class="badge badge-info"><i class="fa fa-gear"></i> Ingresado </span>
+                            {% elif liked_by_user_flag  == 1  %}
+                                <span class="badge badge-warning"><i class="fa fa-warning"></i> Aprobado </span>
+                            {% else  %}
+                                <span class="badge badge-primary"><i class="fa fa-check-circle"></i> Enviado </span>
+
+
+
+                            {% endif %}
+                            <br>
+                            <br>
+
+                        </div>
+                        <div class="col content">
+                            <p><strong>ID:</strong> {{ obj.id|stringformat:"06d" }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                            </p>
+
+                            <p><strong>Monto DTE:</strong>  {{ obj.cuotaspendientes }}  &nbsp;&nbsp;
+                            Items: {{  obj.cuotaspagadas  }} &nbsp;&nbsp;&nbsp;
+                                {% if obj.tipocredito == 0 %}
+                                    <span class="badge badge-primary">F</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% else %}
+                                    <span class="badge badge-success">C</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% endif %}
+
+                            </p>
+
+                            <div class="media-body text-right ">
+                                </br>
+
+                                <p>Ingresado: &nbsp;{{ obj.fechaven |date:'d-b-Y ' }}</p>
+                                <p>Aprobado: &nbsp;{{ obj.fechaven |date:'d-b-Y ' }}</p>
+                                <p>Enviado: &nbsp;{{ obj.fechaven |date:'d-b-Y ' }}</p>
+
+
+
+                                <a href="{% url 'cobrox:Archivos_creditoAdd' pk=obj.id %}"  >
+                                        <span class="badge badge-primary"> <i class="fa fa-envelope"></i> Reenviar DTE </span>
+                                    </a>
+
+                                <a  title="Ver" data-toggle="modal" data-target="#modal-{{ obj.id }}">
+                                    <span class="badge badge-primary"><i class="fa fa-archive"></i>&nbsp; Ver DTE &nbsp;</span>
+                                </a>
+
+                                <a href="{% url 'cobrox:PagoAdd' pk=obj.id %}"  >
+                                    <span class="badge badge-primary"><i class="fa fa-download"></i> Download JSON</span>
+                                </a>
+
+
+                            </div>
+                            <br>
+
+
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+            <small>Cliente no posee créditos asociados</small>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="col-lg-4">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+                    <div class="col-lg-4 text-center">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+                        <div class="m-b-sm">
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <strong>
+                            General
+                        </strong>
+                        <p>
+                            <p><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</p>
+                            <p><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</p>
+                            <p><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</p>
+                            <p><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</p>
+                            {% if view.cliente.celular %}
+                                <p><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</p>
+                            {% endif %}
+                            <p><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</p>
+                            {% if view.cliente.codigo %}
+                                <p><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</p>
+                            {% endif %}
+                        </p>
+
+
+
+
+                        <a href="{% url 'cobrox:ClienteList' %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-backward"></i> Regresar a Clientes</h4></span>
+                         </a>
+
+
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% for obj in object_list %}
+<div class="modal fade" id="modal-{{ obj.id }}" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content animated bounceInRight">
+
+          <div class="modal-header">
+
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><small class="text-navy"><strong>Inicio</strong></small></th>
+                    <th><small class="text-navy"><strong>Vencimiento</strong></small></th>
+                    <th><small class="text-navy"><strong>Días</strong></small></th>
+                    <th><small class="text-navy"><strong>Otorgado</strong></small></th>
+                    <th><small class="text-navy"><strong>Interés</strong></small></th>
+                    <th><small class="text-navy"><strong>Cuotas<br>Pendientes</strong></small></th>
+                    <th><small class="text-navy"><strong>Cuotas<br>Pagadas</strong></small></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><small class="text-navy">{{ obj.fechaini |date:'d-b-Y ' }}</small></td>
+                    <td><small class="text-navy">{{ obj.fechaven |date:'d-b-Y ' }}</small></td>
+                    <td><small class="text-navy">{{ obj.qtydiascuota }}</small></td>
+
+                    <td><small class="text-navy">$ {{ obj.montootorgado|intcomma }}  </small> </td>
+                    <td><small class="text-navy">  {{ obj.interespct|intcomma }}%  </small> </td>
+
+                    <td><small class="text-navy">{{ obj.cuotaspendientes }}  </small> </td>&nbsp;
+                    <td><small class="text-navy">{{  obj.cuotaspagadas  }} &nbsp; </small> </td>
+                </tr>
+                </tbody>
+                </table>
+
+
+
+
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+
+
+
+                            <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Recibido</th>
+                                <th>Capital</th>
+                                <th>Interés</th>
+                                <th>Cuotas<br> Abonadas</th>
+                                <th>Recibo</th>
+                                <th>Tipo </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% muestra_pagos obj.id %}
+                            </tbody>
+                            </table>
+
+
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+ {% endfor %}
+{% endblock %}
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultorio Virtual | Login</title>
+    {% load static %}
+    <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/style.css' %}" >
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+</head>
+
+<body class="gray-bg">
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <div>
+                <h1 class="logo-name">CVM</h1>
+            </div>
+            <div class="error-desc">
+                Lo lamentamos, pero la página que estás buscando no ha sido encontrada. Verifica si existe algún error en la URL, luego haz click en el botón de refrescamiento o trata algo diferente en nuestra app.
+                <br/><a href="/index.html" class="btn btn-primary m-t">Login</a>
+            </div>
+
+            <h3>Bienvenido a CVM </h3>
+            <p>Software de Gestión de Consultorios Médicos.</p>
+            <p > <small>Software desarrollado por <strong>OI<font color="red">TECH</font>LA</strong></small> </p>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+    <script src="{% static 'historialmed/js/jquery-3.1.1.min.js' %}"></script>
+    <script src="{% static 'historialmed/js/popper.min.js' %}"></script>
+    <script src="{% static 'historialmed/js/bootstrap.js' %}"></script>
+
+
+</body>
+
+</html>

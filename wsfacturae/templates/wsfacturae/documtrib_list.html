@@ -1,0 +1,124 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load humanize %} {% load filter_functions %}
+{% block nav-reporte%}class="active"{% endblock %} {% block nav-reporte-dtelist%}class="active"{% endblock %} {% block main %}
+
+
+<div class="mb-5 px-5 py-3 bg-white">
+
+          <h1><i class="fa fa-address-book"></i> Lista DTEs</h1>
+          <form id="dte-list-filter" action="{% url 'wsfacturae:DteList' %}">
+            <div class="row">
+              <div class="col-lg-3">
+                <h5>Tipos de DTEs</h5>
+                {%render_field form.tipoDTE class="form-control "%}
+              </div>
+
+              <div class="col-lg-3">
+                <h5>Emisor</h5>
+                <div>{%render_field form.emisor class="form-control "%}</div>
+              </div>
+
+              <div class="col-lg-3">
+                <h5>Fecha inicial:</h5>
+                <div id="fechaf">
+                  <div class="input-group date mb-3">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i></span
+                    >{% render_field form.fecha_ini class="form-control" %}
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <h5>Fecha Final:</h5>
+                <div id="fechadec">
+                  <div class="input-group date mb-3">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i></span
+                    >{% render_field form.fecha_fin class="form-control" %}
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+            <div class="row mb-3">
+              
+              <div class="col-lg-3">
+                <h5>Codigo Factura: </h5>
+                <div class="input-group">
+                  {%render_field form.factura class="form-control"%}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group" >
+                <input name="page" type="hidden">
+              </div>
+              </div>
+                <div class="col-12">
+            </div>
+            <button class="btn btn-primary" type="submit" name="page" value="1">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+            <div id="results">{% include 'wsfacturae/documtrib_list_result.html' %}</div>
+          </form>
+
+
+</div>  
+  {%endblock%}
+
+  {%block ss%}
+
+  // Submit handler for our form: submit it using AJAX instead.
+  $('#dte-list-filter').on('submit', function(evt) {
+    evt.preventDefault();
+  
+    var form = evt.target;
+  
+    $.ajax({
+      url: form.action,
+      data: $(form).serialize(),
+      success: function(data) {
+        $('#results').html(data)
+        $('#results').fadeIn()
+      }
+    });
+  });
+  
+  // Because we are using buttons, which ajax submit will not send,
+  // we need to add a hidden field with the relevant page number
+  // when we send our request.
+  
+  $('#dte-list-filter').on('click', 'button[name=page]', function() {
+    var page = parseInt(this.value, 10);
+    var $form = $(this.form);
+    // Only update the value of the hidden form.
+    if (!$form.find('[name=page][type=hidden]')) {
+      $form.insert('<input name=page type=hidden>');
+    }
+    $form.find('[name=page][type=hidden]').val(page);
+    // Increment any prev/next buttons values by their increment amount,
+    // and set the disabled flag on any that have reached their stop-at
+    $form.find('[data-increment]').each(function() {
+      this.value = parseInt(this.dataset.increment, 10) + page;
+      // We want to disable the button if we get to the 'stop-at' value,
+      // but this needs to happen after any submit events have occurred.
+      if (this.dataset.stopAt) {
+        setTimeout(function() {
+          this.disabled = (this.value == this.dataset.stopAt);
+        }.bind(this), 0);
+      }
+    });
+  
+    $form.submit();
+  });
+  
+  $('#descripcion').on('keyup', function(e) {
+      var $form = $(this.form);
+      if (e.keyCode === 13) {
+         $form.submit();
+      }
+  })
+  
+  {% endblock%}
+  
+  

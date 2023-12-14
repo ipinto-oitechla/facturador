@@ -1,0 +1,130 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load crispy_forms_tags %} {% load humanize %} {% load static %} {% load filter_functions %}
+{% block nav-ws %}class="active"{% endblock %} 
+{% block nav-emisor %}class="active"{% endblock %} 
+{%block main%}
+<div class="col-md-10">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Introduzca los Datos del Emisor</h5>
+
+        </div>
+         <div class="ibox-content">
+            <form method="post" id="orderForm" enctype="multipart/form-data" data-lista-url="{% url 'wsfacturae:ajax_load_munis' %}" data-subcats-url="{% url 'wsfacturae:ajax_load_subacts' %}" data-actecos-url="{% url 'wsfacturae:ajax_load_actecos' %}">
+                {{ crispy }}
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ form.nit.label }}</h5>
+                            <div class="form-group">
+                              {% render_field form.nit class="form-control"  %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>{{ form.nrc.label }}</h5>
+                            <div class="form-group">
+                              {% render_field form.nrc class="form-control" %}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <h5>{{ form.nombre.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.nombre class+="form-control" %}
+                    </div>
+
+                    <h5>{{ form.nombrecomercial.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.nombrecomercial class="form-control" %}
+                    </div>
+
+                    <h5>{{ form.catactividadeco.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.catactividadeco class="form-control" %}
+                    </div>
+
+                    <h5>{{ form.subactividadeco.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.subactividadeco class="form-control" %}
+                    </div>
+                    <h5>{{ form.actividadeco.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.actividadeco class="form-control" %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <h5>{{ form.email.label }}</h5>
+                    <div class="form-group">
+                      {% render_field form.email class="form-control" %}
+                    </div>
+                    {{form.natural.label}}
+                    <div class="form-group">
+                      {%render_field form.natural class="form-control"%}
+                  </div>
+                    {% comment %} <div class="form-group">
+                        {%render_field form.logo class="form-control"%}
+                    </div> {% endcomment %}
+
+                </div>
+                </div>
+
+
+                 <div class="ibox-content text-center p-md">
+                <a href="{% url 'wsfacturae:emisor-detail' %}">
+                        <button type="button"  class="ladda-button btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                      </a>
+                    &nbsp;&nbsp;
+                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                    <i class="fa fa-save"></i>&nbsp; Guardar
+                </button>
+                </div>
+            </form>
+         </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+
+    $("#id_catactividadeco").change(function () {
+      var url_p = $("#orderForm").attr("data-subcats-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'categoria': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_subactividadeco").html(data);  // replace the contents of the city input with the data that came from the server
+          $("#id_actividadeco").html("<option></option>");  // replace the contents of the city input with the data that came from the server
+        }
+      });
+    });
+
+    $("#id_subactividadeco").change(function () {
+      var url_p = $("#orderForm").attr("data-actecos-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'subcategoria': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_actividadeco").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+      });
+    });
+
+  </script>
+{%endblock%}

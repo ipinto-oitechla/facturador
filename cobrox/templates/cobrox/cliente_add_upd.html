@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block nav-operacion %}class="active"{% endblock %}
+{% block nav-operacion-clientes %}class="active"{% endblock %}
+
+
+{% block main %}
+<div class="row">
+<div class="col-lg-12">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Introduzca los Datos del Cliente</h5>
+
+        </div>
+         <div class="ibox-content">
+            <form method="post" enctype="multipart/form-data">
+                {{ crispy }}
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5>{{ form.nombre.label }}</h5>
+                                <div class="form-group">
+                                {% render_field form.nombre class="form-control" %}
+                                </div>
+                                <h5>{{ form.direccion.label }}</h5>
+                                <div class="form-group">
+                                {% render_field form.direccion class="form-control" %}
+                                </div>
+                                <h5>{{ form.zona.label }}</h5>
+                                <div class="form-group">
+                                {% render_field form.zona class="form-control" %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h5>{{ form.telefono.label }}</h5>
+                                <div class="form-group">
+                                {% render_field form.telefono class="form-control" %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <h5>{{ form.celular.label }}</h5>
+                                <div class="form-group">
+                                {% render_field form.celular class="form-control" %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5>{{ form.email.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.email class="form-control" %}
+                        </div>
+                        <h5>{{ form.dui.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.dui class="form-control" %}
+                        </div>
+                        <h5>{{ form.nit.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.nit class="form-control" %}
+                        </div>
+                        <h5>{{ form.observacion.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.observacion class="form-control" %}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox">
+                            <div class="ibox-content text-center p-md">
+                                <a href="{% url 'cobrox:DesembolsoList' %}">
+                                    <button type="button"  class="btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                                </a>
+                                &nbsp;&nbsp;
+                                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                                    <i class="fa fa-save"></i>&nbsp; Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+         </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+

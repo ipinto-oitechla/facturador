@@ -1,0 +1,230 @@
+{% load filter_functions %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/sweetalert/sweetalert.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/style.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/toastr/toastr.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/datapicker/datepicker3.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/clockpicker/clockpicker.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/blueimp/css/blueimp-gallery.min.css' %}" >
+
+    <title>CONSULTORIO VIRTUAL | </title>
+
+
+    <script>
+    </script>
+    </head>
+<body>
+<div id="wrapper">
+
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                    <form role="search" class="navbar-form-custom" method="post" action="#">
+                        <div class="form-group">
+                            <input type="text" placeholder="_____________________________________________" class="form-control" name="top-search" id="top-search">
+                        </div>
+                    </form>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                            <li>
+                                <div class="{% filter_count_user_hab user %}">
+                                    {% filter_user_hab user %}
+                                </div>
+                            </li>
+                        <li>
+                            <a href="/">
+                            {% if  user.usumed.medico.modalidad == 0   %}
+                                <img src="{% static 'images/logo_min_com_img.png' %}" width="100%" style="width:40px"/>
+                            {% elif user.usumed.medico.modalidad == 1 %}
+                                <img src="{% static 'images/logo_min_pro_img.png' %}"  width="100%" style="width:40px"/>
+                            {% else %}
+                                <img src="{% static 'images/logo_min_pre_img.png' %}"  width="100%" style="width:40px"/>
+                            {% endif %}
+                            <span class="m-r-sm text-muted welcome-message">Bienvenido a Consultorio Virtual Médico</span>
+                            </a>
+                        </li>
+                    <li>
+                        <a href="/user/logout">
+                            <i class="fa fa-sign-out"></i> Log out
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+                {% block main %}{% endblock %}
+        </div>
+        <div class="footer">
+            <div class="pull-right">
+                {% if  user.usumed.medico.modalidad == 0   %}
+                    Conectado a: <strong>Community CVM </strong>
+                {% elif user.usumed.medico.modalidad == 1 %}
+                    Conectado a: <strong>Professional CVM </strong>
+                {% else %}
+                    Conectado a: <strong>Premmium CVM </strong>
+                {% endif %}
+            </div>
+            <div>
+                <strong>Copyright OI<font color="red">TECH</font>LA &copy; 2016-2018</strong>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Mainly scripts -->
+<!-- Mainly scripts -->
+
+<script src='https://meet.jit.si/external_api.js'></script>
+
+<script src="{% static 'historialmed/js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static 'historialmed/js/popper.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/inspinia.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/pace/pace.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/blueimp/jquery.blueimp-gallery.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.js' %}"></script>
+
+ <!-- Ladda -->
+<script src="{% static 'historialmed/js/plugins/ladda/spin.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.jquery.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/plugins/sweetalert/sweetalert.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/datapicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/clockpicker/clockpicker.js' %}"></script>
+<!-- Mainly scripts -->
+<script src="{% static 'historialmed/js/plugins/toastr/toastr.min.js' %}"></script>
+
+<script type="text/javascript">
+    {% block jss %}{% endblock %}
+</script>
+
+
+<script>
+    $(document).ready(function (){
+        {% for message in messages %}
+            toastr.{{ message.tags }}("{{ message }}");
+       {% endfor %}
+
+       Ladda.bind( '.ladda-button', { timeout: 10000 } );
+
+        $('[data-rel=popover]').popover({
+          html: true,
+          trigger: "hover"
+        });
+
+        $('.clockpicker').clockpicker();
+
+        $('#fechaf .input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: 'yyyy-mm-dd',
+                setDate: new Date()
+            });
+
+        $('.confirmacion').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "No será posible recuperar este registro",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, eliminarlo!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "El registro se encuentra intacto", "error");
+                            return false;
+                        }
+                    });
+       });
+
+       $('.confirmacion_email').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "Será enviado un correo electrónico al paciente con la receta médica",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, enviarlo!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "El correo electrónico no fue enviado", "error");
+                            return false;
+                        }
+                    });
+       });
+
+        $('.confirmacion_proveedor_email').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "Serán enviados correos electrónico a los proveedores asociados, desea continuar?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, enviarlo!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "El correo electrónico no fue enviado", "error");
+                            return false;
+                        }
+                    });
+       });
+
+
+
+
+{% block ss %}{% endblock %}
+
+       $('#showsupport').click(function (){
+                // Display a success toast, with a title
+                toastr.success("Estimado usuario: {{ MENSAJE_SOPORTE }}")
+            });
+
+        $(".navbar side-menu").on("click", function(){
+            $(".navbar").find(".active").removeClass("active");
+            $(this).parent().addClass("active");
+        });
+ });
+
+
+ </script>
+
+</body>
+</html>

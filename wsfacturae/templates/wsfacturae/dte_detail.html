@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load humanize %}
+{% block nav-reporte%}class="active"{% endblock %} {% block nav-reporte-dtelist%}class="active"{% endblock %} {% block main %}
+
+
+<div class="mb-5 px-5 py-3 bg-white">
+
+          <h1><i class="fa fa-address-book"></i> Detalle DTE</h1>
+          <table class="table table-striped text-center">
+            <tr>
+              <th>ID</th>
+              <td>{{ dte_object.id | stringformat:"06d" }}</td>
+            </tr>
+            <tr>
+              <th>Tipo</th>
+              <td>{{ dte_object.fk_Identificacion.tipoDte.descripcion }}</td>
+            </tr>
+            <tr>
+              <th>Cliente</th>
+              <td>{{ dte_object.fk_receptor.nombre }}</td>
+            </tr>
+            <tr>
+              <th>Fecha de Emisión</th>
+              <td>{{ dte_object.fecha|date:"d/m/Y" }} {{ dte_object.fecha|time:"H:i:s" }}</td>
+            </tr>
+            <tr>
+              <th>No. Control</th>
+              <td>{{ dte_object.fk_Identificacion.numeroControl }}</td>
+            </tr>
+            <tr>
+              <th>No. Generación</th>
+              <td>{{ dte_object.fk_Identificacion.codigoGeneracion }}</td>
+            </tr>
+            <tr>
+              <th>Fecha Procesamiento</th>
+              {% if dte_object.hacienda_fecha_procesamiento is not None %}
+                <td>{{ dte_object.hacienda_fecha_procesamiento }}</td>
+              {% else %}
+                <td>------</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <th>Sello Generación</th>
+              {% if dte_object.sello_hacienda is not None %}
+                <td>{{ dte_object.sello_hacienda }}</td>
+              {% else %}
+                <td>------</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <th>Estado</th>
+              {% if dte_object.estado_dte is not None %}
+                <td>{{ dte_object.estado_dte.descripcion_estado }}</td>
+              {% else %}
+                <td>------</td>
+              {% endif %}
+            </tr>
+          </table>
+
+          <div class="row d-flex justify-content-around oy-3">
+            <a class="m-1"  href="{%url 'wsfacturae:jsonView' pk=dte_object.id%}" >
+              <button alt="File" type="button" class="btn btn-outline btn-info">
+                <h5><i class="fa fa-file-code-o fa-sm"></i> Ver JSON</h5>
+              </button>
+            </a>
+            <a class="m-1" href="{% url 'wsfacturae:pdfView' pk=dte_object.id %}" >
+              <button alt="File" type="button" class="btn btn-outline btn-info">
+                <h5><i class="fa fa-file-pdf-o fa-sm"></i> Ver PDF</h5>  
+              </button>
+            </a>
+            <a class="m-1"  href="{% url 'wsfacturae:pdfList' pk=dte_object.id%}" >
+              <button alt="Enviar" type="button" class="btn btn-outline btn-info">
+                <h5><i class="fa fa-envelope fa-sm"></i> Enviar Email</h5>
+              </button>
+            </a>
+          </div>
+
+
+</div>
+  
+{% endblock%}
+  
+  

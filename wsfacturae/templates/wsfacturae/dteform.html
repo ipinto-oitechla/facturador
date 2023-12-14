@@ -1,0 +1,835 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load crispy_forms_tags %} {% load humanize %} {% load filter_functions %}{%block nav-operacion %}class="active"{% endblock %}
+
+<head>
+  <title>Formulario DTE</title>
+</head>
+{%block main %}
+<div class="ibox-content">
+  <h1>{{dte_object.descripcion}}</h1>
+
+  <form
+    class="form-control p-3"
+    method="POST"
+    action="{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}"
+  >
+    {%csrf_token%}
+
+      <div class="d-flex flex-row-reverse">
+        <button class="btn btn-success" type="submit" name="save_form">
+          <i style="font-size: 20px" class="fa fa-save"></i>
+        </button>
+      </div>
+    <div class="row">
+      <div class="col-lg-3">
+        <h3>Fecha:</h3>
+        <div id="fechadec" class="">
+          <div class="input-group date">
+            <span class="input-group-addon"
+              ><i class="fa fa-calendar"></i
+            ></span>
+            {% render_field form.fecha class="form-control" %}
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h3>Receptor:</h3>
+        <div>
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+            {% render_field form.receptor class="form-control d-none" id="id_receptor"%}
+            <input class="form-control" id="nombre_receptor" type="text" readonly></input>
+            <button
+              type="button"
+              data-toggle="modal"
+              data-target="#modal-receptor"
+              class="btn btn-success input-group-addon"
+            >
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h3>Establecimiento:</h3>
+        <div class="d-flex flex-row-reverse">
+          <div>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-user"></i></span>
+              {% render_field form.establecimiento class="form-control" %}
+              <button
+                type="button"
+                data-toggle="modal"
+                data-target="#modal-establecimiento"
+                class="btn btn-success input-group-addon"
+              >
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <h3>Punto de venta:</h3>
+        <div class="d-flex flex-row-reverse">
+          <div>
+            <div class="input-group">
+              <span class="input-group-addon"><i class="fa fa-user"></i></span>
+              {% render_field form.puntoventa class="form-control" id="id_puntoventa"%}
+              <button
+                type="button"
+                data-toggle="modal"
+                data-target="#modal-punto-venta"
+                class="btn btn-success input-group-addon"
+              >
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-lg-3">
+        <button
+          type="button"
+          data-toggle="modal"
+          data-target="#modal-forma-pago"
+          class="btn btn-primary"
+          id="open-pagos"
+        >
+          Administrar formas de pago
+        </button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="d-flex flex-row-reverse mt-5">
+          <button
+            type="submit"
+            name="enviar_form"
+            class="btn btn-primary col-4"
+            id="enviar-formulario"
+            style="display:none"
+          >
+            <b>Enviar Factura</b>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <hr />
+
+  <form
+    class="form-control py-3"
+    method="POST"
+    action="{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}"
+  >
+    <h1 class="mb-4 text-uppercase"><b>Listado de productos</b></h1>
+    {% csrf_token %}
+    <div class="mt-2 col-12 d-flex align-items-center">
+      <h4 class="mr-2">Producto:</h4>
+      <div class="input-group">
+        {% render_field form_producto.producto class="form-control" id="id_producto"%}
+        <button
+          type="button"
+          data-toggle="modal"
+          data-target="#modal-productos"
+          class="btn btn-success input-group-addon"
+        >
+          <i class="fa fa-plus"></i>
+        </button>
+      </div>
+
+      <h4 class="ml-3 mr-2">Cantidad:</h4>
+      <div class="input-group">
+        {% render_field form_producto.cantidad class="form-control" %}
+      </div>
+
+      <div class="input-group ml-5 d-grid gap-2">
+        <button type="submit" class="btn btn-primary" name="producto_add">
+          Añadir
+        </button>
+      </div>
+    </div>
+
+    {% if carrito_error %}
+    <div class="col-12 mt-2 alert alert-danger">{{ carrito_error }}</div>
+    {% endif %}
+  </form>
+  <hr />
+  <div class="col-lg-12 " id="results"></div>
+  <table class="table table-striped ">
+    <thead class="table-dark">
+      <tr>
+        <th class="text-left">#</th>
+        <th class="text-left">Nombre</th>
+        <th class="text-right">Precio Unitario</th>
+        <th class="text-left">Cantidad</th>
+        <th class="text-right">Descuento</th>
+        <th class="text-right">Exento</th>
+        <th class="text-right">Gravado</th>
+        <th class="text-right">No Sujeto</th>
+        <th class="text-right">Operación</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in carrito %}
+      <tr>
+        <td class="text-left">{{ forloop.counter }}</td>
+        <td class="text-left">{{ item.producto }}</td>
+        {%if dte_object.codigo == '01'%}
+        <td class="text-right">${{item.preciouni |floatformat:decimal}}</td>
+        {%elif dte_object.codigo == '03'%}
+        <td class="text-right">
+          ${{item.preciouniSinImpuesto |floatformat:decimal}}
+        </td>
+        {%endif%}
+        <td class="text-right">{{ item.cantidad|floatformat:decimal}}</td>
+        <td class="text-right">
+          {% if dte_object.codigo == "01" %}
+            {% if item.excento == "N" %}
+              ${{ item.descuentoConImp|floatformat:decimal }}
+            {% elif item.excento == "S" %}
+                ${{ item.descuento|floatformat:decimal }}
+              {% endif %}
+          {% elif dte_object.codigo == "03" %}
+            ${{ item.descuento|floatformat:decimal }}
+          {% endif %}
+        </td>
+        {%if dte_object.codigo == '01'%}
+        <td class="text-right">
+          {%if item.excento == 'S' %}${{item.totalDescu|floatformat:decimal}}{%endif %}
+        </td>
+        <td class="text-right">
+          {%if item.excento == 'N' %}${{item.totalDescu|floatformat:decimal}}{%endif %}
+        </td>
+        {%elif dte_object.codigo == '03'%}
+        <td class="text-right">
+          {%if item.excento == 'S' %}${{item.subtotalSinImpuesto|floatformat:decimal}}{%endif %}
+        </td>
+        <td class="text-right">
+          {%if item.excento == 'N' %}${{item.subtotalSinImpuesto|floatformat:decimal}}{%endif %}
+        </td>
+        {%endif%}
+        <td class="text-right">$0.00</td>
+        <td class="text-right">
+          <form method="post">
+            {% csrf_token %}
+            <input
+              type="hidden"
+              name="eliminar_producto"
+              value="{{ forloop.counter0 }}"
+            />
+            <button type="submit" class="btn btn-danger rounded-circle">
+              <i class="fa fa-trash" style="color: #ffffff"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <table class="table table-striped">
+
+
+    <tr>
+      <td>
+        {% if dte_object.codigo == "01" %}
+          <h2 class="text-right">
+            <span><b>Subtotal sin descuentos: $</b></span><b id="subtotalSinDescValue">{{subtotalSinDescuento|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>Subtotal con descuentos: $</b></span><b id="subtotalConDescuValue">{{subtotal|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>Otros descuentos: $</b></span><b id="descuentosValue">{{total_descuento_dte|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>IVA Retenido: $</b></span><b id="ivaReteValue">{{ivaRete|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>Total a pagar: $</b></span><b id="totalAPagarValue">{{totalAPagar|floatformat:decimal}}</b>
+          </h2>
+        {% elif dte_object.codigo == "03" %}
+          <h2 class="text-right">
+            <span><b>Subtotal con descuentos: $</b></span><b id="subtotalConDescuValue">{{subtotal|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>Otros descuentos: $</b></span><b id="descuentosValue">{{total_descuento_dte|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>IVA: $</b></span><b id="ivaValue">{{IVA|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>IVA Retenido: $</b></span><b id="ivaReteValue">{{ivaRete|floatformat:decimal}}</b>
+          </h2>
+          <h2 class="text-right">
+            <span><b>Total a pagar: $</b></span><b id="totalAPagarValue">{{totalAPagar|floatformat:decimal}}</b>
+          </h2>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <h2 class="text-right">
+         <span><b>Total pagado: $</b></span><b id="totalPagadoValue">{{totalPagado|floatformat:decimal}}</b>
+        </h2>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<div
+  class="modal fade"
+  id="modal-receptor"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-receptor-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-receptor-label">
+          Lista de receptores
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-user"></i></span
+          ><input
+            type="text"
+            id="search-receptor"
+            class="form-control"
+            placeholder="Buscar receptor"
+          />
+        </div>
+        <table class="table table-striped mt-3">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>No. Documento</th>
+              <th>Telefono</th>
+              <th>Operación</th>
+            </tr>
+          </thead>
+          <tbody class="text-left" id="table-body">
+            {% for receptor in form.receptor.field.queryset %}
+            <tr
+              class="select-receptor"
+              data-receptor="{{ receptor.nodocumento }}"
+            >
+              <td>{{ receptor.id }}</td>
+              <td>{{ receptor.nombre }}</td>
+              <td>{{receptor.nodocumento}}</td>
+              <td>{{receptor.telefono}}</td>
+              <td>
+                <button class="btn btn-primary" onclick="seleccionarReceptor('{{ receptor.id }}', '{{ receptor.nombre }}', '{{ receptor.gran_contr }}' )">+</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal-productos"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-receptor-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-receptor-label">
+          Lista de Productos
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-user"></i></span
+          ><input
+            type="text"
+            id="search-producto"
+            class="form-control"
+            placeholder="Buscar producto"
+          />
+        </div>
+
+        <table class="table table-striped mt-3">
+          <thead class="table-dark text-left">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Precio unitario</th>
+              <th>Tipo</th>
+              <th>Operación</th>
+            </tr>
+          </thead>
+          <tbody class="text-left" id="producto-table-body">
+            {% for producto in productos %}
+            <tr
+              class="select-producto"
+              data-receptor="{{producto.descripcion}}"
+            >
+              <td>{{ producto.id }}</td>
+              <td>{{ producto.descripcion }}</td>
+              <td class="text-right">{{ producto.preciouni|floatformat:2 }}</td>
+              <td>{{producto.tipoitem}}</td>
+              <td>
+                <button class="btn btn-primary btn-select-producto"><i class="fa fa-plus"></i></button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal-establecimiento"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-receptor-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-receptor-label">
+          Lista de Establecimientos
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-user"></i></span
+          ><input
+            type="text"
+            id="search-receptor"
+            class="form-control"
+            placeholder="Buscar receptor"
+          />
+        </div>
+        <table class="table table-striped mt-3">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Tipo</th>
+              <th>Código</th>
+              <th>Código MH</th>
+              <th>Departamento</th>
+              <th>Municipio</th>
+              <th>Operacion</th>
+            </tr>
+          </thead>
+          <tbody class="text-left" id="table-body">
+            {% for establecimiento in establecimientos %}
+            <tr
+              class="select-establecimiento"
+              data-receptor="{{ establecimiento.codestablec }}"
+            >
+              <td>{{ establecimiento.id }}</td>
+              <td>{{ establecimiento.tipoEstable.descripcion }}</td>
+              <td>{{establecimiento.codestablec}}</td>
+              <td>{{establecimiento.codestablemh}}</td>
+              <td>{{establecimiento.direccionMun.departamento.descripcion}}</td>
+              <td>{{establecimiento.direccionMun.descripcion}}</td>
+              <td>
+                <button class="btn btn-primary btn-select-establecimiento">
+                  <i class="fa fa-plus"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal-punto-venta"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-puntosventa-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-puntosventa-label">
+          Puntos de Venta
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Código Punto Venta</th>
+              <th>Código Punto Venta MH</th>
+              <th>Operacion</th>
+            </tr>
+          </thead>
+          <tbody class="text-left" id="table-puntosventa"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal-forma-pago"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-puntosventa-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-puntosventa-label">
+          Resumen de pago
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <h3 class="text-center"><b>Monto restante:</b> $<span id="monto-pago-restante"></span></h3>
+          <form
+            class="form-control py-3"
+            method="POST"
+            action="{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}"
+          >
+            {%csrf_token%}
+            <div class="row">
+              <div class="col-lg-6">
+                <h5>Forma de pago:</h5>
+                {%render_field form_metodo.forma_pago class="form-control" id="pago_field"%}
+              </div>
+              <div class="col-lg-6">
+                <h5>Monto:</h5>
+                {%render_field form_metodo.monto class="form-control" id="monto_field"%}
+              </div>
+            </div>
+            <div class="row">
+            <div class="col-lg-12">
+            <div class="d-flex flex-row-reverse">
+              
+                <button type="button" class="btn btn-primary" id="pago_add">
+                  Añadir
+                </button>
+            </div>
+          </div>
+        </div>
+
+          </form>
+          <table class="table" id="tabla-pagos">
+            <thead class="table-dark">
+              <th>Tipo pago</th>
+              <th>Monto</th>
+              <th>Operacion</th>
+            </thead>
+            <tbody>
+              {%for pago in pagos%}
+              <tr>
+                <td>{{ pago.metodo }}</td>
+                <td>{{ pago.monto }}</td>
+                <td>
+                  <form method="POST" action="{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}">
+                    {%csrf_token%}
+                  <button type="submit" class="btn btn-danger eliminar-pago" data-index="{{ forloop.counter0 }}">Eliminar</button>
+                  <input type="hidden" name="eliminar_pago" value="{{ forloop.counter0 }}">
+                </form>
+                </td>
+            </tr>
+
+              {%endfor%}
+            </tbody>
+          </table>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const selectProductoButtons = document.querySelectorAll(
+        ".btn-select-producto"
+      );
+      const selectEstablecimientoButtons = document.querySelectorAll(
+        ".btn-select-establecimiento"
+      );
+      const selectPuntoVentaButtons = document.querySelectorAll(
+        ".btn-select-puntoventa"
+      );
+      const agregarPago = document.getElementById("pago_add");
+      //const subtotalElement = document.getElementById("subtotalValue");
+      const subtotalElement = document.getElementById("totalAPagarValue");
+      const totalPagado = document.getElementById("totalPagadoValue");
+      const formaPago = document.getElementById("pago_field");
+      const montoPago = document.getElementById("monto_field");
+      const abrirPagos = document.getElementById("open-pagos");
+      const enviarButton = document.getElementById("enviar-formulario");
+      const receptorField = document.getElementById("id_receptor");
+      const nombreReceptor = document.getElementById("nombre_receptor");
+      const puntosVentaTableBody = document.getElementById("table-puntosventa");
+      const productoField = document.getElementById("id_producto");
+      const establecimientoField =
+        document.getElementById("id_establecimiento");
+      const searchInput = document.getElementById("search-receptor");
+      const searchProducto = document.getElementById("search-producto");
+      const tableBody = document.getElementById("table-body");
+      const productoTableBody = document.getElementById("producto-table-body");
+      const url = "{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}";
+      
+      if(receptorField.value){
+        nombreReceptor.value = receptorField.options[receptorField.selectedIndex].text;
+      }
+
+      function calcularMontoPagoRestante(){
+        const montoPagoRestante = $("#monto-pago-restante");
+        const subtotalElement = $("#totalAPagarValue");
+        const totalPagado = $("#totalPagadoValue");
+        const subtotalValue = parseFloat(subtotalElement.text());
+        const totalPagadoValue = parseFloat(totalPagado.text());
+        const restante = (subtotalValue > totalPagadoValue) ? parseFloat(subtotalValue - totalPagadoValue).toFixed(2) : parseFloat(0).toFixed(2);
+        montoPagoRestante.text(restante.toString());
+        montoPago.value = restante;
+      }
+
+      abrirPagos.addEventListener('click', function(){
+        calcularMontoPagoRestante();
+      });
+      
+      agregarPago.addEventListener("click", function(){
+        let totalPagado = 0
+        const totalPagadoText = $("#totalPagadoValue");
+        const montoPagoRestante = $("#monto-pago-restante");
+        const montoPagoRestatnte = $("#monto-pago-restatnte");
+        const subtotalElement = $("#totalAPagarValue");
+        const enviarButton = $("#enviar-formulario");
+        counter = 0;
+
+        if(parseFloat(montoPago.value).toFixed(2) !== parseFloat(0).toFixed(2)){
+          $.ajax({
+          url:url,
+          method:"POST",
+          data:{
+            metodoPago: formaPago.value,
+            monto: montoPago.value,
+            csrfmiddlewaretoken:"{{csrf_token}}",
+          },
+          dataType:"json",
+          success: function (response) {
+            // Manejar la respuesta del servidor aquí
+            console.log("Solicitud AJAX exitosa", response);
+            const tablaPagos = $("#tabla-pagos");
+            const cuerpoTabla = tablaPagos.find("tbody");
+            // Limpia cualquier contenido previo en el cuerpo de la tabla
+            cuerpoTabla.empty();
+        
+            // Itera sobre los datos de pagos en la respuesta JSON y agrega filas a la tabla
+            response.pagos.forEach(function (pago, index) {
+                totalPagado += parseFloat(pago.monto);
+                const fila = $("<tr>");
+                fila.append($("<td>").text(pago.metodo));
+                fila.append($("<td>").text(pago.monto));
+                fila.append($(`<td><form method="POST" action="{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}">{%csrf_token%}<input type="hidden" name="eliminar_pago" value="${counter}"><button type="submit" class="btn btn-danger">Eliminar</button></form></td>`));
+                counter++;
+                cuerpoTabla.append(fila);
+                
+                
+            });
+            console.log(totalPagado)
+            totalPagadoText.text(totalPagado.toFixed(2));
+            if (totalPagado === parseFloat(subtotalElement.text()) && totalPagado!==0) {
+              console.log("TRUE");
+              enviarButton.css('display', 'block'); // Muestra el botón
+            } else {
+              enviarButton.css('display', 'none');  // Ocu
+            }
+          formaPago.value = '';
+          calcularMontoPagoRestante();
+        },
+          error: function (error) {
+            // Manejar errores aquí
+            console.error("Error en la solicitud AJAX", error);
+          },
+        });
+        }
+      });
+
+      selectProductoButtons.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const productoValue =
+            this.closest(".select-producto").getAttribute("data-receptor");
+          productoField.value = productoValue;
+          $("#modal-productos").modal("hide");
+        });
+      });
+
+      selectEstablecimientoButtons.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const establecimientoValue = this.closest(
+            ".select-establecimiento"
+          ).getAttribute("data-receptor");
+          establecimientoField.value = establecimientoValue;
+          $("#modal-establecimiento").modal("hide");
+
+          $.ajax({
+            url: url, // Ajusta la URL según tu configuración
+            data: { establecimiento_cod: establecimientoValue },
+            dataType: "json",
+            success: function (data) {
+              // Limpiar la tabla de puntos de venta en el modal
+              puntosVentaTableBody.innerHTML = "";
+
+              // Agregar los nuevos puntos de venta a la tabla
+              data.forEach(function (puntoVenta) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${puntoVenta.id}</td>
+                    <td>${puntoVenta.codpuntoventa}</td>
+                    <td>${puntoVenta.codpuntoventamh}</td>
+                    <td><button class="btn btn-primary btn-select-puntoventa" ><i class="fa fa-plus"></i></button></td>
+                    <!-- Agregar más celdas según tus campos -->
+                `;
+                row.classList.add("select-puntoventa"); // Agregar clase "select-puntoventa"
+                row.setAttribute("data-receptor", puntoVenta.codpuntoventa);
+                puntosVentaTableBody.appendChild(row);
+                const selectPuntoVentaButtons = document.querySelectorAll(
+                  ".btn-select-puntoventa"
+                );
+                const puntoventaField =
+                  document.getElementById("id_puntoventa");
+                selectPuntoVentaButtons.forEach(function (btn) {
+                  btn.addEventListener("click", function () {
+                    const productoValue =
+                      this.closest(".select-puntoventa").getAttribute(
+                        "data-receptor"
+                      );
+                    puntoventaField.value = productoValue;
+                    $("#modal-punto-venta").modal("hide");
+                  });
+                });
+              });
+            },
+            error: function (error) {
+              console.error("Error al obtener puntos de venta:", error);
+            },
+          });
+        });
+      });
+
+      searchInput.addEventListener("input", function () {
+        const searchTerm = this.value.trim().toLowerCase();
+        const rows = tableBody.querySelectorAll("tr");
+
+        rows.forEach((row) => {
+          const receptorName = row
+            .querySelector("td:nth-child(2)")
+            .textContent.toLowerCase();
+          if (receptorName.includes(searchTerm)) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+
+      searchProducto.addEventListener("input", function () {
+        const searchTerm = this.value.trim().toLowerCase();
+        const rows = productoTableBody.querySelectorAll("tr");
+
+        rows.forEach((row) => {
+          const productoName = row
+            .querySelector("td:nth-child(2)")
+            .textContent.toLowerCase();
+          if (productoName.includes(searchTerm)) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    });
+
+    function seleccionarReceptor(id, nombre, esGranContrValue){
+      const url = "{%url 'wsfacturae:dteFormView' tipo_dte=tipo_dte%}";
+      const subtotalElement = document.getElementById("subtotalValue");
+      const receptorField = document.getElementById("id_receptor");
+      const nombreReceptor = document.getElementById("nombre_receptor");
+      receptorField.value = id;
+      nombreReceptor.value = receptorField.options[receptorField.selectedIndex].text;
+          $("#modal-receptor").modal("hide");
+          $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+              receptor: receptorField.value.toString(),
+              esGranContr: esGranContrValue,
+              csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            dataType: "json",
+            success: function (response) {
+              //subtotalElement.textContent = response.totalAPagar?.toFixed(2)
+              console.log("Solicitud AJAX exitosa", response);
+            },
+            error: function (error) {
+              // Manejar errores aquí
+              console.error("Error en la solicitud AJAX", error);
+            },
+          });
+    }
+  </script>
+  {% endblock %}
+</div>

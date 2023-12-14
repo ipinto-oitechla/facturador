@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load crispy_forms_tags %} {% load humanize %} {% load static %} {% load filter_functions %}
+{% block nav-ws %}class="active"{% endblock %} 
+{% block nav-emisor %}class="active"{% endblock %}
+{%block main%}
+<head>
+  <title>Detalle del Emisor</title>
+</head>
+<div class="ibox-content">
+  <h1><b>{{ emisor.nombre }}</b></h1>
+
+  <div class="d-flex flex-row align-items-center">
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="col">
+          <h2>NIT:</h2>
+          <input class="form-control" value=" {{ emisor.nit }}" readonly />
+        </div>
+        <div class="col">
+          <h2>NRC:</h2>
+          <input class="form-control" value=" {{ emisor.nrc }}" readonly />
+        </div>
+      </div>
+      <div>
+        <h2>Nombre comercial:</h2>
+        <input
+          class="form-control"
+          value="{{emisor.nombrecomercial}}"
+          readonly
+        />
+      </div>
+      <div>
+        <h2>Actividad Económica:</h2>
+        <input
+          class="form-control"
+          value="{{emisor.actividadeco.descripcion}}"
+          readonly
+        />
+      </div>
+      <div>
+        <h2>Email:</h2>
+        <input class="form-control" value="{{ emisor.email }}" readonly />
+      </div>
+      <div class="mt-4">
+        <a href="{%url 'wsfacturae:EmisorUpdate' pk=emisor.id%}"><button class="btn col-12 btn-warning"><b>Editar</b></button></a>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      {% comment %} <center>
+        <img
+          src="{% static 'cobrox/logo_amc.png' %}"
+          width="300px"
+          style=""
+        />
+      </center> {% endcomment %}
+    </div>
+  </div>
+</div>
+
+{%endblock%}

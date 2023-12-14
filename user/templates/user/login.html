@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaE | Login</title>
+    {% load static %}
+    <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+    <link rel="stylesheet"  href="{% static 'cobrox/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'cobrox/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'cobrox/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'cobrox/css/style.css' %}" >
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" >
+    $(document).ready(function(){
+        $("#id_username").attr('placeholder', 'Email');
+        $("#id_password").attr('placeholder', 'Password');
+        $('label[for="id_username"]').hide();
+        $('label[for="id_password"]').hide();
+    });
+</script>
+
+</head>
+
+<body class="gray-bg">
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <div>
+                <h2 class="logo-name">FaE</h2>
+            </div>
+            <h3>Bienvenido a FaE {{ facebook_login.extra_data.email }}</h3>
+            <p>Software de Facturación Electrónica</p>
+            <form method="post" class="m-t" role="form">
+            {% csrf_token %}
+            {{ form.as_p }}
+              <button type="submit" class="btn btn-primary block full-width m-b"><i class="fa fa-sign-in"></i>   Iniciar Sesión</button>
+
+                <br>
+                <br>
+
+            </form>
+            {% if messages %}
+            <div class="alert alert-success">
+                {% for m in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ m }}</li>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <p > <small>Software desarrollado por <strong>OI<font color="red">TECH</font>LA</strong></small> </p>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+    <script src="{% static 'cobrox/js/jquery-3.1.1.min.js' %}"></script>
+    <script src="{% static 'cobrox/js/popper.min.js' %}"></script>
+    <script src="{% static 'cobrox/js/bootstrap.js' %}"></script>
+
+
+</body>
+
+</html>

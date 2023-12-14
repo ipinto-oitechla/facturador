@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% block nav-ws %}class="active"{% endblock %}
+{% block nav-aactividadeco %}class="active"{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block main %}
+<div class="col-lg-8">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Introduzca los Datos de la Actividad Económica</h5>
+
+        </div>
+         <div class="ibox-content">
+            <form method="post" id="orderForm"  enctype="multipart/form-data" data-lista-url="{% url 'wsfacturae:ajax_load_subacts' %}">
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                {{ crispy }}
+                {% csrf_token %}
+
+                <h5>{{ form.catactividadeco.label }}</h5>
+                <div class="form-group">
+                {% render_field form.catactividadeco class="form-control" %}
+                </div>
+                <h5>{{ form.subactividadeco.label }}</h5>
+                <div class="form-group">
+                {% render_field form.subactividadeco class="form-control" %}
+                </div>
+                <h5>{{ form.codigo.label }}</h5>
+                <div class="form-group">
+                {% render_field form.codigo class="form-control" %}
+                </div>
+                <h5>{{ form.descripcion.label }}</h5>
+                <div class="form-group">
+                {% render_field form.descripcion class="form-control" %}
+                </div>
+
+                {% if not form.nm_estado.is_hidden %}
+                <h5>{{ form.nm_estado.label }}</h5>
+                <div class="form-group">
+                {% render_field form.nm_estado class="form-control" %}
+                </div>
+                {% endif %}
+
+
+                {% for hidden in form.hidden_fields %}
+                      {{ hidden }}
+                    {% endfor %}
+                 <div class="ibox-content text-center p-md">
+                <a href="{% url 'wsfacturae:ActividadecoList' %}">
+                        <button type="button"  class="ladda-button btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                      </a>
+                    &nbsp;&nbsp;
+                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                    <i class="fa fa-save"></i>&nbsp; Guardar
+                </button>
+                </div>
+            </form>
+         </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#id_catactividadeco").change(function () {
+      var url_p = $("#orderForm").attr("data-lista-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'categoria': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_subactividadeco").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+      });
+
+    });
+  </script>
+{% endblock %}
+

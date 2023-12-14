@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-tipo_clientes %}class="active"{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block main %}
+<div class="col-md-8">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Introduzca los Datos del Tipo de Cliente</h5>
+
+        </div>
+         <div class="ibox-content">
+            <form method="post" enctype="multipart/form-data">
+                {{ form | crispy }}
+                {% csrf_token %}
+
+                 <div class="ibox-content text-center p-md">
+                <a href="{% url 'cobrox:TipoclienteList' %}">
+                        <button type="button"  class="ladda-button btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                      </a>
+                    &nbsp;&nbsp;
+                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                    <i class="fa fa-save"></i>&nbsp; Guardar
+                </button>
+                </div>
+            </form>
+         </div>
+    </div>
+</div>
+{% endblock %}
+

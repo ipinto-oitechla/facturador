@@ -1,0 +1,20 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load widget_tweaks %}
+{% load crispy_forms_tags %} 
+{% load humanize %} 
+{% load filter_functions %}
+{%block main%}
+    <div class="ibox-content">
+        <h1><p>Añadir punto de venta</p></h1>
+            <div class="ibox-title"></div>
+            <form method="POST" enctype="multipart/form-data">
+                {{form|crispy}}
+                {%csrf_token%}
+
+                <button type="submit" class="btn btn-primary" name="action" value="SAVE">Añadir punto de venta</button>
+            </form>
+
+    </div>
+
+{%endblock%}

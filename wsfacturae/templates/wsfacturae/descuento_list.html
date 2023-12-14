@@ -1,0 +1,52 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load widget_tweaks %}
+{% load crispy_forms_tags %} 
+{% load humanize %} 
+{% load filter_functions %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-descuento %}class="active"{% endblock %}
+
+{%block main%}
+<div class="mb-5 px-3 py-3 bg-white" >
+    <h1><i class="fa fa-address-book"></i> Lista de descuentos</h1>
+    <form id="producto-list-filter" class="mt-5 mb-3  col-lg-12" action="{% url 'wsfacturae:DescuentoList' %}">
+        <div class="d-flex d-row">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-arrow-right"></i></span>
+                    <input id="search-producto" class="form-control" type="input" placeholder="Buscar producto">
+                </div>
+            <a href="{% url 'wsfacturae:AddDescuento'%}"><button type="button" class="ladda-button btn btn-primary ml-5"><h5> <i class="fa fa-plus-circle"></i> Añadir Descuento</h5></button> </a>
+        </div>
+      <div class="mt-5" id="results ">
+                {%include 'wsfacturae/descuento_list_result.html'%}
+      </div>
+
+    </form>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const searchProducto = document.getElementById("search-producto");
+      const tableBody = document.getElementById("table-body");
+  
+      searchProducto.addEventListener("input", function () {
+        const searchTerm = this.value.trim().toLowerCase();
+        const rows = tableBody.querySelectorAll("tr");
+  
+        rows.forEach((row) => {
+          const productoName = row
+            .querySelector("td:nth-child(2)")
+            .textContent.toLowerCase();
+            const productoCodigo = row
+            .querySelector("td:nth-child(1)")
+            .textContent.toLowerCase();
+          if (productoName.includes(searchTerm)||productoCodigo.includes(searchTerm)) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    });
+  </script>
+{%endblock%}

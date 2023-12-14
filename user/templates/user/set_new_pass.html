@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% load markdownify %}
+{% load crispy_forms_tags %}
+
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-user %}class="active"{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Establecer Contraseña</h5>
+
+            </div>
+            <div class="ibox-content">
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <p class="error-message">
+                        {% if form.errors.old_password or  form.errors.new_password1 or form.errors.new_password2 or form.errors.non_field_errors %}
+                            <div class="alert alert-danger">
+                                    No se pudo actualizar la contraseña, considera los siguientes elementos:
+                                    {% if form.errors.old_password %}
+                                        {{ form.errors.old_password }}
+                                    {% endif %}
+                                    {% if form.errors.new_password1 %}
+                                        {{ form.errors.new_password1 }}
+                                    {% endif %}
+                                    {% if form.errors.new_password2 %}
+                                        {{ form.errors.new_password2 }}
+                                    {% endif %}
+                                    {% if form.errors.non_field_errors %}
+                                        {{ form.errors.non_field_errors }}
+                                    {% endif %}
+                                    {% if form.non_field_errors %}
+                                        {% for error in form.non_field_errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    {% endif %}
+                            </div>
+                      {% endif %}
+                    </p>
+
+                    <div class="form-group row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Digite Nueva Contraseña</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="new_password1" placeholder="Nueva Contraseña" required>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputPassword" class="col-sm-3 col-form-label">Confirme nueva contraseña</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" name="new_password2" id="inputPassword" placeholder="Confirma nueva contraseña" required>
+                        </div>
+                    </div>
+                    <div class="ibox-content text-center p-md">
+                        <a href="{% url 'user:UserList' %}">
+                                <button type="button"  class="btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                              </a>
+                            &nbsp;&nbsp;
+                        <input class="ladda-button btn btn-warning " type="submit" name="" value="&nbsp;Actualizar">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="ibox">
+            <div class="ibox-content">
+                <div id="contact-4" class="tab-pane">
+                    <div class="row m-b-lg">
+                        <div class="col-lg-4 text-center">
+                            <h2>{{ view.user.first_name }} {{ view.user.last_name }}</h2>
+
+                            <div class="m-b-sm">
+                                <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+
+                            </div>Usuario
+                        </div>
+                        <div class="col-lg-8">
+                            <p>
+                                <p><i class="fa fa-user"></i>  {{ view.user.username }}</p>
+                                <p><i class="fa fa-envelope"></i>  {{ view.user.email }}</p>
+
+
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load filter_functions %}
+{% load static %}
+{% load humanize %}
+{% block main %}
+<div class="row">
+<div class="col-lg-8">
+    <div class="ibox ">
+        <div class="ibox-title ibox-heading">
+            <h3><strong><i class="fa fa-money"></i> Detalle de créditos</strong></h3>
+        </div>
+        <div class="ibox-content inspinia-timeline">
+            {% for obj in object_list %}
+                <div class="timeline-item">
+                    <div class="row">
+                        <div class="col-4 date">
+
+                            <i class="fa fa-calendar"></i></i>
+                            <small class="text-navy">Inicio: &nbsp;{{ obj.fechaini |date:'d-b-Y ' }}</small><br>
+                            <small class="text-navy">Vencimiento: &nbsp;{{ obj.fechaven |date:'d-b-Y ' }}</small><br>
+                            <small class="text-navy">Días: &nbsp;{{ obj.qtydiascuota }}</small>
+                            <br/>
+                            <small class="text-navy">[ Otorgado: $ {{ obj.montootorgado|intcomma }} ] </small> <br>
+                            <small class="text-navy"> [ Interés:  {{ obj.interespct }}% ] </small> <br>
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+
+                            {% revigenciaestadocredito obj.saldopendiente obj.fechaven obj.estadocredito as liked_by_user_flag %}
+                            {% if liked_by_user_flag == 0  %}
+                                <span class="badge badge-info"><i class="fa fa-gear"></i> Vigente </span>
+                            {% elif liked_by_user_flag  == 1  %}
+                                <span class="badge badge-warning"><i class="fa fa-warning"></i> Vencido </span>
+                            {% else  %}
+                                <span class="badge badge-primary"><i class="fa fa-check-circle"></i> Cancelado </span>
+                                {% refinanc_originado obj as refinanc_o %}
+
+                                {% if refinanc_o %}
+                                    <br><br>
+                                    {% if refinanc_o.tipocredito == 0 %}
+                                        <span class="badge badge-primary">C</span>&nbsp;{{ refinanc_o.get_tipocredito_display }}
+                                    {% else %}
+                                        <span class="badge badge-success">R</span>&nbsp;{{ refinanc_o.get_tipocredito_display }}
+                                    {% endif %}
+                                    {{ refinanc_o.id|stringformat:"06d" }}
+                                {% endif %}
+
+
+                            {% endif %}
+                            <br>
+                            <br>
+
+                        </div>
+                        <div class="col content">
+                            <p><strong>ID:</strong> {{ obj.id|stringformat:"06d" }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% if obj.tipocredito == 1 %}
+                                {% credito_original obj as coriginal_o %}
+
+                                {% if coriginal_o %}
+                                    <small>Base:
+                                    {% if coriginal_o.tipocredito == 0 %}
+                                        <span class="badge badge-primary">C</span>&nbsp;{{ coriginal_o.get_tipocredito_display }}
+                                    {% else %}
+                                        <span class="badge badge-success">R</span>&nbsp;{{ coriginal_o.get_tipocredito_display }}
+                                    {% endif %}
+
+
+                                    {{ coriginal_o.id|stringformat:"06d" }}</small>
+                                {% endif %}
+                            {% endif %}
+                            </p>
+
+                            <p><strong>Cuotas Pendientes:</strong>  {{ obj.cuotaspendientes }}  &nbsp;&nbsp;
+                            Cuotas Pagadas: {{  obj.cuotaspagadas  }} &nbsp;&nbsp;&nbsp;
+                                {% if obj.tipocredito == 0 %}
+                                    <span class="badge badge-primary">C</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% else %}
+                                    <span class="badge badge-success">R</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% endif %}
+
+                            </p>
+
+                            <div class="media-body text-right ">
+                                <p> Cuota: <strong>$ {{ obj.totalcuota|intcomma   }} </strong> &nbsp;&nbsp;
+                                    Capital: $ {{ obj.capitalcuota|intcomma  }}&nbsp;&nbsp;
+                                    Interés: $ {{ obj.interescuota|intcomma  }}
+                                 </p>
+
+
+                                <p> Interes Total: $ {{ obj.interestotal|intcomma  }}  </p>
+                                <p> Capital Total: $ {{ obj.montootorgado|intcomma  }}  </p>
+                                <p> Total: $ {{ obj.montoyinterestotal|intcomma  }}  </p>
+
+                                <a href="{% url 'cobrox:Archivos_creditoAdd' pk=obj.id %}"  >
+                                        <span class="badge badge-primary"> <i class="fa fa-upload"></i> Editar Archivos</span>
+                                    </a>
+
+                                <a  title="Ver" data-toggle="modal" data-target="#modal-{{ obj.id }}">
+                                    <span class="badge badge-primary"><i class="fa fa-archive"></i>&nbsp; Ver Pagos &nbsp;</span>
+                                </a>
+                                {% if obj.estadocredito == 0 %}
+                                <a href="{% url 'cobrox:PagoAdd' pk=obj.id %}"  >
+                                    <span class="badge badge-primary"><i class="fa fa-credit-card"></i> Ingresar Pago</span>
+                                </a>
+                                {% endif %}
+                                {% if obj.estadoregistro == 0 %}
+                                    <a class="confirmacion_trans" href="{% url 'cobrox:CreditoDelete' pk=obj.id %}"  >
+                                        <span class="badge badge-danger"> <i class="fa fa-times-circle"></i> Borrar Crédito</span>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="media-body text-left ">
+                                <br>
+                                <p><strong> Saldo Total Pendiente: $  {{ obj.saldopendiente|intcomma  }}
+                                     </strong></p>
+
+
+                            </div>
+                            <div class="media-body text-left ">
+                            <div id="links2" data-slideshow="100" class="modal-fullscreen-xs-down">
+                                    {% for ag in obj.credito_archivo_set.all %}
+                                        <a href="/static/images/arc_clientes/{{ ag.credito.cliente.id }}/credito/{{ ag.credito.id }}/{{ ag.filename }}"  data-gallery="#blueimp-gallery-fullscreen">
+                                            <img src="/static/images/arc_clientes/{{ ag.credito.cliente.id }}/credito/{{ ag.credito.id }}/{{ ag.filename }}" class="img-thumbnail" width="20%"></a>
+
+
+                                    {% endfor %}
+                                <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+                                    <div id="blueimp-gallery2" class="blueimp-gallery blueimp-gallery-controls" aria-label="image gallery" aria-modal="true" role="dialog">
+                                        <div class="slides"></div>
+                                        <h3 class="title"></h3>
+                                        <a class="prev">‹</a>
+                                        <a class="next">›</a>
+                                        <a class="close">×</a>
+                                        <a class="play-pause"></a>
+                                        <ol class="indicator"></ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+            <small>Cliente no posee créditos asociados</small>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="col-lg-4">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+                    <div class="col-lg-4 text-center">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+                        <div class="m-b-sm">
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <strong>
+                            General
+                        </strong>
+                        <p>
+                            <p><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</p>
+                            <p><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</p>
+                            <p><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</p>
+                            <p><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</p>
+                            {% if view.cliente.celular %}
+                                <p><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</p>
+                            {% endif %}
+                            <p><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</p>
+                            {% if view.cliente.codigo %}
+                                <p><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</p>
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'cobrox:CreditoAdd' pk=view.cliente.id %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-plus-circle"></i> Ir Registrar Crédito</h4></span>
+                         </a>
+                            <p> </p>
+
+                        <a href="{% url 'cobrox:Archivos_clienteAdd' pk=view.cliente.id  %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-upload"></i> Subir DUI / NIT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h4></span>
+                         </a>
+                        <p> </p>
+
+                        <a href="{% url 'cobrox:ClienteList' %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-backward"></i> Regresar a Clientes</h4></span>
+                         </a>
+
+
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+
+                            <div id="links" data-slideshow="100" class="modal-fullscreen-xs-down">
+
+                                {% for ag in cliente_archivos %}
+
+                                <a href="/static/images/arc_clientes/{{ ag.cliente.id }}/{{ ag.filename }}"  data-gallery="#blueimp-gallery-fullscreen">
+                                    <img src="/static/images/arc_clientes/{{ ag.cliente.id }}/{{ ag.filename }}" class="img-thumbnail" width="40%"></a>
+
+                                    <br><br>
+                                {% endfor %}
+                            <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+                                <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" aria-label="image gallery" aria-modal="true" role="dialog">
+                                    <div class="slides"></div>
+                                    <h3 class="title"></h3>
+                                    <a class="prev">‹</a>
+                                    <a class="next">›</a>
+                                    <a class="close">×</a>
+                                    <a class="play-pause"></a>
+                                    <ol class="indicator"></ol>
+                                </div>
+                            </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% for obj in object_list %}
+<div class="modal fade" id="modal-{{ obj.id }}" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content animated bounceInRight">
+
+          <div class="modal-header">
+
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><small class="text-navy"><strong>Inicio</strong></small></th>
+                    <th><small class="text-navy"><strong>Vencimiento</strong></small></th>
+                    <th><small class="text-navy"><strong>Días</strong></small></th>
+                    <th><small class="text-navy"><strong>Otorgado</strong></small></th>
+                    <th><small class="text-navy"><strong>Interés</strong></small></th>
+                    <th><small class="text-navy"><strong>Cuotas<br>Pendientes</strong></small></th>
+                    <th><small class="text-navy"><strong>Cuotas<br>Pagadas</strong></small></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><small class="text-navy">{{ obj.fechaini |date:'d-b-Y ' }}</small></td>
+                    <td><small class="text-navy">{{ obj.fechaven |date:'d-b-Y ' }}</small></td>
+                    <td><small class="text-navy">{{ obj.qtydiascuota }}</small></td>
+
+                    <td><small class="text-navy">$ {{ obj.montootorgado|intcomma }}  </small> </td>
+                    <td><small class="text-navy">  {{ obj.interespct|intcomma }}%  </small> </td>
+
+                    <td><small class="text-navy">{{ obj.cuotaspendientes }}  </small> </td>&nbsp;
+                    <td><small class="text-navy">{{  obj.cuotaspagadas  }} &nbsp; </small> </td>
+                </tr>
+                </tbody>
+                </table>
+
+
+
+
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+
+
+
+                            <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Recibido</th>
+                                <th>Capital</th>
+                                <th>Interés</th>
+                                <th>Cuotas<br> Abonadas</th>
+                                <th>Recibo</th>
+                                <th>Tipo </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% muestra_pagos obj.id %}
+                            </tbody>
+                            </table>
+
+
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+ {% endfor %}
+{% endblock %}
+

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-emisor %}class="active"{% endblock %}
+{% block title %}
+<h1>Emisores</h1>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1>Emisor</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'cobrox:EmisorAdd'%}" ><span class="ladda-button badge badge-primary"><h5> <i class="fa fa-plus-circle"></i>&nbsp; Crear Nuevo Emisor</h5></span> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>NIT</th>
+                    <th>DUI</th>
+                    <th>NOMBRE</th>
+                    <th>NRC</th>
+                    <th>TELEFONO</th>
+                    <th>EMAIL</th>
+                    <th>MUNICIPIO</th>
+                    <th>ACTIVIDAD ECONÓMICA</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td><span class="label label-info">{{ forloop.counter }}</span> {{ obj.nit }} </td>
+                            <td>{{ obj.dui }}  </td>
+                            <td>{{ obj.nombre }}  </td>
+                            <td>{{ obj.nrc }} </td>
+                            <td>{{ obj.telefono }} </td>
+                            <td>{{ obj.email }} </td>
+                            <td>{{ obj.municipio.descripcion }} </td>
+                            <td>{{ obj.actividadeco.descripcion }} </td>
+
+                            <td><a href="{% url 'cobrox:EmisorUpdate' pk=obj.id %}" ><span class="badge badge-warning">Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{% url 'cobrox:EmisorDelete' pk=obj.id %}" ><span class="badge badge-danger">Eliminar</span></a></td>
+                        {% empty %}
+                            <td> No existen emisores configurados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+

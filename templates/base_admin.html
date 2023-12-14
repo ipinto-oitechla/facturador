@@ -1,0 +1,249 @@
+{% load filter_functions %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/sweetalert/sweetalert.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/style.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/blueimp/css/blueimp-gallery.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/datapicker/datepicker3.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/clockpicker/clockpicker.css' %}" >
+
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/toastr/toastr.min.css' %}" >
+
+
+    <title>CONSULTORIO VIRTUAL | </title>
+    <script>
+    </script>
+    </head>
+<body>
+<div id="wrapper">
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.email }} </span>
+                            <span class="text-muted text-xs block">Opciones<b class="caret"></b></span>
+                        </a>
+
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="user/logout">Logout</a></li>
+                            <li><a class="dropdown-item" href="/">Inicio</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        CV+ Admin
+                    </div>
+                </li>
+                {% if request.user.is_superuser %}
+                <li>
+                    <a href="#"><i class="fa fa-wrench"></i> <span class="nav-label">Catalogos</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="{% url 'cobros:BancoList' %}"><i class="fa fa-list-alt"></i>Bancos [$]</a></li>
+                        <li><a href="{% url 'historialmed:AsegList' %}"><i class="fa fa-list-alt"></i>Aseguradoras [P]</a></li>
+                        <li><a href="{% url 'historialmed:DeptoList' %}"><i class="fa fa-list-alt"></i>Paises [P]</a></li>
+                        <li><a href="{% url 'historialmed:DeptoPaisList' %}"><i class="fa fa-list-alt"></i>Departamentos [P]</a></li>
+                        <li><a href="{% url 'historialmed:EspecialidadList' %}"><i class="fa fa-list-alt"></i>Especialidades [P]</a></li>
+                        <li><a href="{% url 'historialmed:PlantillaList' %}"><i class="fa fa-list-alt"></i>Plantillas [P,E]</a></li>
+                        <li><a href="{% url 'inventario:TipounidadList' %}"><i class="fa fa-list-alt"></i>Tipo de Unidades [I]</a></li>
+                        <li><a href="{% url 'historialmed:CodigoscompraList' %}"><i class="fa fa-list-alt"></i>Codigos Compra[C]</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-trophy"></i> <span class="nav-label">Ventas </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li><a href="{% url 'cobros:StaffmedicoAdd' %}"><i class="fa fa-user-md"></i>Asociar Medicos</a></li>
+                            <li><a href="{% url 'cobros:StaffmedicoList' %}"><i class="fa fa-list-alt"></i>Listar Asociaciones</a></li>
+                        </ul>
+
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-bank"></i> <span class="nav-label">Ingresos </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li><a href="{% url 'cobros:IngresoAdd' %}"><i class="fa fa-plus-square"></i>Agregar</a></li>
+                            <li><a href="{% url 'cobros:IngresoList' %}"><i class="fa fa-list-alt"></i>Consultar</a></li>
+                        </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-thumbs-o-up"></i> <span class="nav-label">Autorizaciones </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li><a href="{% url 'cobros:StaffmedicoPendList' %}"><i class="fa fa-trophy"></i>Asociaciones</a></li>
+                            <li><a href="{% url 'cobros:IngresoPendList' %}"><i class="fa fa-bank"></i>Ingresos</a></li>
+                        </ul>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-shield"></i> <span class="nav-label">Soporte </span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li><a href="{% url 'cobros:MedicoList' %}"><i class="fa fa-phone-square"></i>Buscar Medicos</a></li>
+                            <li><a href="{% url 'historialmed:ClienteList' %}"><i class="fa fa-phone-square"></i>Agendar Consulta</a></li>
+                        </ul>
+                </li>
+                {% endif %}
+                {% if request.user.is_staff or request.user.is_superuser %}
+                <li>
+                    <a href="#"><i class="fa fa-shield"></i> <span class="nav-label">Mi Médico US</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                            <li><a href="{% url 'historialmed:ClienteList' %}"><i class="fa fa-phone-square"></i>Agendar Consulta</a></li>
+                            <li><a href="{% url 'historialmed:CodigoscompraList' %}"><i class="fa fa-list-alt"></i>Codigos Compra[C]</a></li>
+                        </ul>
+                </li>
+                {% endif %}
+                <hr>
+            </ul>
+
+        </div>
+    </nav>
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                    <form role="search" class="navbar-form-custom" method="post" action="#">
+                        <div class="form-group">
+                            <input type="text" placeholder="_____________________________________________" class="form-control" name="top-search" id="top-search">
+                        </div>
+                    </form>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                        <li>
+                            <a href="/cobros">
+                            <span class="m-r-sm text-muted welcome-message">Bienvenido a Consultorio Virtual Médico Admin</span>
+                            </a>
+                        </li>
+                    <li>
+                        <a href="/user/logout">
+                            <i class="fa fa-sign-out"></i> Log out
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+                {% block main %}{% endblock %}
+        </div>
+        <div class="footer">
+            <div>
+                <strong>Copyright</strong> OITECHLA  &copy; 2016-2018
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Mainly scripts -->
+<!-- Mainly scripts -->
+<script src="{% static 'historialmed/js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static 'historialmed/js/popper.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/inspinia.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/pace/pace.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/blueimp/jquery.blueimp-gallery.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.js' %}"></script>
+
+ <!-- Ladda -->
+<script src="{% static 'historialmed/js/plugins/ladda/spin.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.jquery.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/plugins/sweetalert/sweetalert.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/datapicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/clockpicker/clockpicker.js' %}"></script>
+
+<!-- Mainly scripts -->
+
+
+<script src="{% static 'historialmed/js/plugins/toastr/toastr.min.js' %}"></script>
+
+<script>
+    $(document).ready(function (){
+        {% for message in messages %}
+            toastr.{{ message.tags }}("{{ message }}");
+       {% endfor %}
+
+       Ladda.bind( '.ladda-button', { timeout: 10000 } );
+
+        $('[data-rel=popover]').popover({
+          html: true,
+          trigger: "hover"
+        });
+
+        $('.clockpicker').clockpicker();
+
+        $('#fechaf .input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: 'yyyy-mm-dd',
+                setDate: new Date()
+            });
+
+        $('.confirmacion').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "No será posible recuperar este registro",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, eliminarlo!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "El registro se encuentra intacto", "error");
+                            return false;
+                        }
+                    });
+       });
+
+       {% block ss %}{% endblock %}
+
+       $('.confirmacion_impo').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "Esta seccion cambiar el tipo de uso del medico",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, continuar!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "La accion ha sido cancelada", "error");
+                            return false;
+                        }
+                    });
+       });
+
+
+       $('#showsupport').click(function (){
+                // Display a success toast, with a title
+                toastr.success("Estimado usuario: {{ MENSAJE_SOPORTE }}")
+            });
+ });
+ </script>
+
+</body>
+</html>

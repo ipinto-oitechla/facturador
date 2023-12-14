@@ -1,0 +1,79 @@
+{% load humanize %}
+{% load filter_functions %}
+<div class="results">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Cliente</th>
+                    <th>Fecha  </th>
+
+                    <th>Monto </th>
+                    <th>Control</th>
+                    <th>Generacion</th>
+                    <th>Autorizacion</th>
+                    <th>Fecha Autorización</th>
+                    <th>Operación</th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% with sum_montootorgado=0 sum_saldopendiente=0%}
+
+
+
+
+
+
+                    {% for obj in object_list %}
+                        {% suma_objs obj.montootorgado sum_montootorgado as sum_montootorgado %}
+                       {% suma_objs obj.saldopendiente sum_saldopendiente as sum_saldopendiente %}
+                        <tr>
+                            <td> {{ obj.id|stringformat:"06d" }}</td>
+                            <td>
+
+                               {% if obj.tipocredito == 0 %}
+                                    <span class="badge badge-primary">C</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% else %}
+                                    <span class="badge badge-success">R</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% endif %}
+
+                            </td>
+                            <td> {{ obj.cliente.nombre }} </td>
+                            <td> {{ obj.cliente.email }} </td>
+                            <td align="right">$ {{ obj.montootorgado|intcomma }}</td>
+
+                             <td> {{ obj.aux_control }} </td>
+                             <td> {{ obj.aux_gen }} </td>
+                            <td> {{ obj.aux_aprob }} </td>
+                            <td> {{ obj.aux_aprob_date_upd }} </td>
+
+
+
+                            <td >
+                                <a  target="_blank" href="https://cvv-assets.s3.amazonaws.com/static/cobrox/dte_json.json" download><button alt="File" type="button" class="btn btn-outline btn-info" title='JSON'><i class="fa fa-file-code-o"></i></button></a>
+                                <a  target="_blank" href="https://cvv-assets.s3.amazonaws.com/static/cobrox/dte.pdf" download><button alt="File" type="button" class="btn btn-outline btn-info" title='PDF'><i class="fa fa-file-pdf-o"></i></button></a>
+                                <a  href="{% url 'cobrox:EnviarDTEEmail' pk=obj.id %}" ><button alt="Enviar" type="button" class="btn btn-outline btn-info" title='Enviar'><i class="fa fa-envelope"></i></button></a>
+                            <a  href="{% url 'cobrox:ClienteUpdate' pk=obj.cliente.id %}" ><button alt="Update" type="button" class="btn btn-outline btn-info" title='Editar'><i class="fa fa-pencil"></i></button></a></td>
+
+                        </tr>
+                            {% if forloop.last %}
+                    <tr><td> </td><td> </td><td> </td><td> </td><td align="right"><strong>$ {{ sum_montootorgado|intcomma }}</strong></td>
+                        <td> </td></tr>
+                            {% endif %}
+
+                        {% empty %}
+                        <tr>
+                            <td> No existen créditos registrados </td>
+                        </tr>
+
+                    {% endfor %}
+
+
+
+                    {% endwith %}
+
+                </tbody>
+                </table>
+</div>
+

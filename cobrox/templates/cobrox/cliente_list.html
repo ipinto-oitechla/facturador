@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block nav-operacion %}class="active"{% endblock %}
+{% block nav-operacion-clientes %}class="active"{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1><i class="fa fa-address-book"></i> Clientes</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'cobrox:ClienteAdd'%}"><button type="button" class="ladda-button btn btn-primary"><h5> <i class="fa fa-plus-circle"></i> Crear Cliente</h5></button> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <form id="cliente-list-filter" action="{% url 'cobrox:ClienteList' %}">
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <div class="form-group" >
+                    <input id="{{ form.apellidos.html_name }}" placeholder="Digite Nombre , Apellido o Código Aplicación" name="{{ form.apellidos.html_name }}" class="form-control" value="{{ form.apellidos.value }}" type="search">
+                  </div>
+                    <div class="form-group" >
+                      <input name="page" type="hidden">
+                    </div>
+                    </div>
+                      <div class="col-lg-8">
+                    <div class="form-group" >
+                    <button class="btn btn-primary" type="submit" name="page" value="1"><i class="fa fa-search"></i> Buscar</button>
+                    </div>
+                      </div>
+                      </div>
+                    <div id="results">
+                        {% include 'cobrox/cliente_list_results.html' %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{%block ss%}
+
+// Submit handler for our form: submit it using AJAX instead.
+$('#paciente-list-filter').on('submit', function(evt) {
+  evt.preventDefault();
+
+  var form = evt.target;
+
+  $.ajax({
+    url: form.action,
+    data: $(form).serialize(),
+    success: function(data) {
+      $('#results').html(data)
+      $('#results').fadeIn()
+    }
+  });
+});
+
+// Because we are using buttons, which ajax submit will not send,
+// we need to add a hidden field with the relevant page number
+// when we send our request.
+
+$('#paciente-list-filter').on('click', 'button[name=page]', function() {
+  var page = parseInt(this.value, 10);
+  var $form = $(this.form);
+  // Only update the value of the hidden form.
+  if (!$form.find('[name=page][type=hidden]')) {
+    $form.insert('<input name=page type=hidden>');
+  }
+  $form.find('[name=page][type=hidden]').val(page);
+  // Increment any prev/next buttons values by their increment amount,
+  // and set the disabled flag on any that have reached their stop-at
+  $form.find('[data-increment]').each(function() {
+    this.value = parseInt(this.dataset.increment, 10) + page;
+    // We want to disable the button if we get to the 'stop-at' value,
+    // but this needs to happen after any submit events have occurred.
+    if (this.dataset.stopAt) {
+      setTimeout(function() {
+        this.disabled = (this.value == this.dataset.stopAt);
+      }.bind(this), 0);
+    }
+  });
+
+  $form.submit();
+});
+
+$('#apellidos').on('keyup', function(e) {
+    var $form = $(this.form);
+    if (e.keyCode === 13) {
+       $form.submit();
+    }
+})
+
+{% endblock%}
+

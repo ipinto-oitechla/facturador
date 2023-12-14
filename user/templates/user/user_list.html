@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load filter_functions %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-users %}class="active"{% endblock %}
+{% block title %}
+<h1>Usuarios</h1>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1>Usuarios</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'user:UserAdd'%}" ><span class="ladda-button badge badge-primary"><h5> <i class="fa fa-plus-circle"></i>&nbsp; Crear Nuevo Usuario</h5></span> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>username</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Filial</th>
+                    <th>Rol</th>
+                    <th>Es Staff</th>
+                    <th>Activo ?</th>
+                    <th>Operaciones</th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td><span class="label label-info">{{ forloop.counter }}</span> {{ obj.username }} </a> </td>
+                            <td> {{ obj.first_name }} </td>
+                            <td> {{ obj.last_name }} </td>
+                            <td> {{ obj.email }} </td>
+                            <td> {% get_filial_by_user obj.id %} </td>
+                            <td> {% get_rol_by_user obj.id %} </td>
+                            <td><a  title="Cambiar" data-toggle="modal" data-target="#modal-t{{ obj.id }}">
+                                {% if  obj.is_staff == 1   %}
+                                    <span class="label label-primary"><i class="fa fa-check-square"></i>&nbsp; Si</span>
+                                {% else %}
+                                    <span class="label label-warning"><i class="fa fa-minus-square"></i>&nbsp; No</span>
+                                {% endif %}
+                                </a>
+                            </td>
+
+
+                            <td><a  title="Cambiar" data-toggle="modal" data-target="#modal-{{ obj.id }}">
+                                {% if  obj.is_active == 1   %}
+                                    <span class="label label-primary"><i class="fa fa-check-square"></i>&nbsp; Si</span>
+                                {% else %}
+                                    <span class="label label-warning"><i class="fa fa-minus-square"></i>&nbsp; No</span>
+                                {% endif %}
+                                </a>
+                            </td>
+                            <td><a href="{% url 'user:PasswordResetConfirmView' pk=obj.id %}" ><span class="badge badge-info">Cambiar Contraseña</span></a></td>
+                            <td><a href="{% url 'user:UserUpdate' pk=obj.id %}" ><span class="badge badge-warning">Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{% url 'user:UserDelete' pk=obj.id %}" ><span class="badge badge-danger">Eliminar</span></a></td>
+                        {% empty %}
+                            <td> No existen usuarios configurados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% for obj in object_list %}
+        <div class="modal fade" id="modal-{{ obj.id }}" tabindex="-1" role="dialog" >
+            <div class="modal-dialog " role="document">
+              <div class="modal-content animated bounceInRight">
+
+                  <div class="modal-header">
+                      <h3 class="modal-title">Cambiar Estado del Usuario</h3>
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            Actualmente el usuario {{ obj.username }}
+                            se encuentra: {% if  obj.is_active == 1   %}
+                                    <i class="fa fa-check-square"></i>&nbsp; Activo
+                                {% else %}
+                                    <i class="fa fa-minus-square"></i>&nbsp; Inactivo
+                                {% endif %} </a>
+                            <br>
+
+
+                            <div class="ibox-content text-center p-md">
+                                <a href="{% url 'user:CambiarEstado' pk=obj.id %}" >
+                                {% if  obj.is_active == 1   %}
+                                        <span class="label label-warning"><i class="fa fa-check-square"></i>&nbsp; Click aquí para desactivar</span>
+                                {% else %}
+                                    <span class="label label-primary"><i class="fa fa-minus-square"></i>&nbsp; Click aquí para activarlo</span>
+                                {% endif %}
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+
+    <div class="modal fade" id="modal-t{{ obj.id }}" tabindex="-1" role="dialog" >
+            <div class="modal-dialog " role="document">
+              <div class="modal-content animated bounceInRight">
+
+                  <div class="modal-header">
+                      <h3 class="modal-title">Cambiar Staff del Usuario</h3>
+                  <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            Actualmente el usuario {{ obj.username }}
+                            se encuentra: {% if  obj.is_staff == 1   %}
+                                    <i class="fa fa-check-square"></i>&nbsp; Rol Staff Activo
+                                {% else %}
+                                    <i class="fa fa-minus-square"></i>&nbsp; Rol Staff Inactivo
+                                {% endif %} </a>
+                            <br>
+
+
+                            <div class="ibox-content text-center p-md">
+                                <a href="{% url 'user:CambiarTipo' pk=obj.id %}" >
+                                {% if  obj.is_staff == 1   %}
+                                        <span class="label label-warning"><i class="fa fa-check-square"></i>&nbsp; Click aquí para desactivar atributo Staff</span>
+                                {% else %}
+                                    <span class="label label-primary"><i class="fa fa-minus-square"></i>&nbsp; Click aquí para activar atributo Staff</span>
+                                {% endif %}
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+

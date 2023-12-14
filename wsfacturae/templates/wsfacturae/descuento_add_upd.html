@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load filter_functions %}
+{% block main %}
+<div class="col-md-8">
+  <div class="ibox">
+      <div class="ibox-title">
+          <h5>Introduzca los Datos del Descuento</h5>
+
+      </div>
+       <div class="ibox-content">
+          <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="{{ form.tipo_descuento.id_for_label }}">{{ form.tipo_descuento.label }}</label>
+                {% render_field form.tipo_descuento class="form-control" %}
+              </div>
+              <div class="form-group">
+                <label for="{{ form.producto.id_for_label }}">{{ form.producto.label }}</label>
+                {% render_field form.producto class="form-control d-none producto-field" %}
+                <div class="input-group">
+                  <input class="form-control" id="descripcion_producto" type="text" readonly></input>
+                  <button
+                    type="button"
+                    id="clear-product-btn"
+                    class="btn btn-secondary input-group-addon"
+                    onclick="limpiarProducto()"
+                  >
+                    <i class="fa fa-times"></i>
+                  </button>
+                  <button
+                    type="button"
+                    id="select-product-btn"
+                    data-toggle="modal"
+                    data-target="#modal-productos"
+                    class="btn btn-success input-group-addon"
+                  >
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="{{ form.tipo_producto.id_for_label }}">{{ form.tipo_producto.label }}</label>
+                {% render_field form.tipo_producto class="form-control tipo_producto-field" %}
+              </div>
+              <div class="form-group">
+                <label for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label>
+                {% render_field form.cantidad class="form-control" %}
+              </div>
+              <div class="form-group">
+                <label for="{{ form.valor_descuento.id_for_label }}">{{ form.valor_descuento.label }}</label>
+                {% render_field form.valor_descuento class="form-control" %}
+              </div>
+              <div class="form-group date">
+                <label for="{{ form.fecha_inicio.id_for_label }}">{{ form.fecha_inicio.label }}</label>
+                {% render_field form.fecha_inicio %}
+              </div>
+              <div class="form-group date">
+                <label for="{{ form.fecha_fin.id_for_label }}">{{ form.fecha_fin.label }}</label>
+                {% render_field form.fecha_fin %}
+              </div>
+
+              <div class="ibox-content text-center p-md">
+                <a href="{% url 'wsfacturae:DescuentoList' %}">
+                  <button type="button"  class="btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                </a>
+                &nbsp;&nbsp;
+                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                  <i class="fa fa-save"></i>&nbsp; Guardar
+                </button>
+              </div>
+          </form>
+       </div>
+  </div>
+</div>
+<div
+  class="modal fade"
+  id="modal-productos"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="modal-productos-label"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-receptor-label">
+          Lista de Productos
+        </h3>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Cerrar"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="fa fa-user"></i></span
+          ><input
+            type="text"
+            id="search-producto"
+            class="form-control"
+            placeholder="Buscar producto"
+          />
+        </div>
+
+        <table class="table table-striped mt-3">
+          <thead class="table-dark text-left">
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Precio unitario</th>
+              <th>Tipo</th>
+              <th>Operación</th>
+            </tr>
+          </thead>
+          <tbody class="text-left" id="producto-table-body">
+            {% for producto in form.producto.field.queryset %}
+            <tr
+              class="select-producto"
+              data-receptor="{{producto.descripcion}}"
+            >
+              <td>{{ producto.id }}</td>
+              <td>{{ producto.descripcion }}</td>
+              <td class="text-right">{{ producto.preciouni|floatformat:2 }}</td>
+              <td>{{producto.tipoitem}}</td>
+              <td>
+                <button class="btn btn-primary" onclick="seleccionarProducto('{{ producto.id }}', '{{ producto.descripcion }}')">
+                  <i class="fa fa-plus"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchProducto = document.getElementById("search-producto");
+      const productoTableBody = document.getElementById("producto-table-body");
+
+      handleFirstLoad();
+      
+
+      $('#id_tipo_descuento').change(function () {
+        let selectedTipoDescuento = $(this).val();
+        updateUI(selectedTipoDescuento);
+      });
+
+      searchProducto.addEventListener("input", function () {
+        const searchTerm = this.value.trim().toLowerCase();
+        const rows = productoTableBody.querySelectorAll("tr");
+
+        rows.forEach((row) => {
+          const productoName = row
+            .querySelector("td:nth-child(2)")
+            .textContent.toLowerCase();
+          if (productoName.includes(searchTerm)) {
+            row.style.display = "table-row";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    });
+
+    function handleFirstLoad(){
+      let selectedTipoDescuento = $('#id_tipo_descuento');
+      updateUI(selectedTipoDescuento);
+      if($('.producto-field').val()){
+        $('#descripcion_producto').val($('.producto-field').find('option:selected').text());
+      }
+      toggleTipoProductoField();
+    }
+  
+    function updateUI(selectedTipoDescuento) {
+      switch(selectedTipoDescuento) {
+        case 'MONTO_ITEM':
+        case 'PORCENTUAL_ITEM':
+          showProductoField();
+          $('label[for="id_cantidad"]').text("Cantidad de productos*");
+          break;
+        case 'MONTO_FACTURA':
+        case 'PORCENTUAL_FACTURA':
+          hideProductoField();
+          $('label[for="id_cantidad"]').text("Monto de factura*");
+          break;
+        default:
+          break;
+      }
+    }
+  
+    function toggleTipoProductoField(){
+      if($('.producto-field').val()){
+        $('.tipo_producto-field').hide();
+        $('.tipo_producto-field').val(null);
+        $('label[for="id_tipo_producto"]').hide();
+        $('.tipo_producto-field').prop("required", false);
+      } else{
+        $('.tipo_producto-field').show();
+        $('.tipo_producto-field').prop("required", true);
+        $('label[for="id_tipo_producto"]').show();
+      }
+    }
+    
+    function showProductoField() {
+      $('#descripcion_producto').show();
+      $('#select-product-btn').show();
+      $('#clear-product-btn').show();
+      $('label[for="id_producto"]').show();
+    }
+  
+    function hideProductoField() {
+      $('.producto-field').val(null);
+      $('#descripcion_producto').val(null);
+      $('#descripcion_producto').hide();
+      $('#select-product-btn').hide();
+      $('#clear-product-btn').hide();
+      $('label[for="id_producto"]').hide();
+    }
+
+    function seleccionarProducto(id, descripcion){
+      $('.producto-field').val(id);
+      $('#descripcion_producto').val($('.producto-field').find('option:selected').text());
+      $("#modal-productos").modal("hide");
+      toggleTipoProductoField();
+    }
+    
+    function limpiarProducto(){
+      $('.producto-field').val(null);
+      $('#descripcion_producto').val(null);
+      toggleTipoProductoField();
+    }
+  </script>
+{% endblock %}

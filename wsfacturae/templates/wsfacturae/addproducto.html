@@ -1,0 +1,21 @@
+{% extends 'base.html' %} 
+{% load crispy_forms_tags %} 
+{% load widget_tweaks %}
+{% load crispy_forms_tags %} 
+{% load humanize %} 
+{% load filter_functions %} 
+{%block main%}
+<form method="post" enctype="multipart/form-data">
+    {{ form | crispy }}
+    {% csrf_token %}
+     <div class="ibox-content text-center p-md">
+    <a href="{% url 'wsfacturae:ProductoList' %}">
+            <button type="button"  class="ladda-button btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+          </a>
+        &nbsp;&nbsp;
+    <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+        <i class="fa fa-save"></i>&nbsp; Guardar
+    </button>
+    </div>
+</form>
+{%endblock%}

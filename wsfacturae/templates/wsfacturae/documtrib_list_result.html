@@ -1,0 +1,42 @@
+<div class="mt-3 results table-responsive">
+  {% include 'cobrox/pagination.html' with form_target='dte-list-filter' %}
+  <table class="table table-striped text-center">
+    <thead class="table-dark">
+      <tr >
+          <th scope="col" class="align-middle">ID</th>
+          <th scope="col" class="align-middle">Tipo</th>
+          <th scope="col" class="align-middle">Cliente</th>
+          <th scope="col" class="align-middle">Fecha Emisión</th>
+          <th scope="col" class="align-middle">No. Control</th>
+          <th scope="col" class="align-middle">No. Generación</th>
+          <th scope="col" class="align-middle">Estado</th>
+          <th scope="col" class="align-middle">Operación</th>
+      </tr>
+      </thead>
+    {% for objeto in object_list %}
+    <tr class="align-middle">
+      <td class="align-middle">{{objeto.id | stringformat:"06d"}}</td>
+      <td class="align-middle">{{objeto.fk_Identificacion.tipoDte.descripcion}}</td>
+      <td class="align-middle">{{objeto.fk_receptor.nombre}}</td>
+      <td class="align-middle">{{objeto.fecha | date:"d/m/Y" }}</td>
+      <td class="align-middle">{{objeto.fk_Identificacion.numeroControl}}</td>
+      <td class="align-middle">{{objeto.fk_Identificacion.codigoGeneracion}}</td>
+      
+      {% if objeto.estado_dte is not None %}
+        <td class="align-middle">{{objeto.estado_dte.descripcion_estado}}</td>
+      {% else %}
+        <td class="align-middle">------</td>
+      {% endif %}
+      
+      <td class="align-middle d-flex flex-wrap">
+        <a class="m-1"  href="{%url 'wsfacturae:jsonView' pk=objeto.id%}" ><button alt="File" type="button" class="btn btn-outline btn-info" title='JSON'><i class="fa fa-file-code-o fa-sm"></i></button></a>
+        <a class="m-1" href="{% url 'wsfacturae:pdfView' pk=objeto.id %}" ><button alt="File" type="button" class="btn btn-outline btn-info" title='PDF'><i class="fa fa-file-pdf-o fa-sm"></i></button></a>
+        <a class="m-1"  href="{% url 'wsfacturae:pdfList' pk=objeto.id%}" ><button alt="Enviar" type="button" class="btn btn-outline btn-info" title='EMAIL'><i class="fa fa-envelope fa-sm"></i></button></a>
+        <a class="m-1"  href="{% url 'wsfacturae:DteDetail' pk=objeto.id%}" ><button alt="Detalles" type="button" class=" btn btn-outline btn-info" title='Ver detalles'><i class="fa fa-solid fa-info fa-sm"></i></button></a>
+      </td>
+    </tr>
+    {% empty %}
+      <li>No hay objetos disponibles.</li>
+    {% endfor %}
+  </table>
+</div>

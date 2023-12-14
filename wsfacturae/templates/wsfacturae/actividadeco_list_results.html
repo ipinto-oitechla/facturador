@@ -1,0 +1,68 @@
+<div class="results">
+{% include 'cobrox/pagination.html' with form_target='actividadeco-list-filter' %}
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Código</th>
+                    <th>Categoría</th>
+                    <th>Subcategoría</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td> {{ obj.descripcion }}</td>
+                            <td> {{ obj.codigo }} </td>
+                            <td> {{ obj.subactividadeco.descripcion }}</td>
+                            <td> {{ obj.subactividadeco.catactividadeco.descripcion }} </td>
+                            <td> {{ obj.get_nm_estado_display }} </td>
+
+                            <td><a href="{% url 'wsfacturae:ActividadecoUpdate' pk=obj.id %}" ><button type="button" class="btn btn-outline btn-warning" title='Editar'><i class="fa fa-pencil"></i></button></a>
+                                &nbsp;<a class="confirmacion" href="{% url 'wsfacturae:ActividadecoDelete' pk=obj.id %}" ><button alt="Eliminar" type="button" class="btn btn-outline btn-danger" title='Eliminar'><i class="fa fa-times-circle"></i></button></a>
+                            </td>
+                            {% empty %}
+                            <td> No existen actividades económicas registradas </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+</div>
+<script>
+    $(document).ready(function (){
+        {% for message in messages %}
+            toastr.{{ message.tags }}("{{ message }}");
+       {% endfor %}
+
+       Ladda.bind( '.ladda-button', { timeout: 20000 } );
+
+
+        $('.confirmacion').click(function(event) {
+            event.preventDefault();
+            var url = $(this).attr('href');
+            swal({
+                        title: "Estas seguro?",
+                        text: "No será posible recuperar este registro",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Si, eliminarlo!",
+                        cancelButtonText: "No, cancelar!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.replace(url);
+                        } else {
+                            swal("Cancelado", "El registro se encuentra intacto", "error");
+                            return false;
+                        }
+                    });
+       });
+
+
+ });
+
+ </script>

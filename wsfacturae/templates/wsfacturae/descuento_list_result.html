@@ -1,0 +1,57 @@
+
+    <table  class="table table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Tipo Producto</th>
+                <th>Cantidad</th>
+                <th>Valor</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Tipo</th>
+                <th style="width:100px"></th>
+                <th style="width:100px"></th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        {%for object in object_list %}
+            <tr>
+                <td class="text-left">
+                    {% if object.producto is not None%}
+                        {{object.producto}}
+                    {% endif %}
+                </td>
+                <td class="text-left">
+                    {% if object.tipo_producto is not None%}
+                        {{object.get_tipo_producto_display}}
+                    {% endif %}
+                </td>
+                <td class="text-left">
+                    {% if object.cantidad is not None %}
+                        {{object.cantidad}}
+                    {% endif %}
+                </td>
+                <td class="text-left">
+                    {% if object.tipo_descuento == "MONTO_ITEM" or object.tipo_descuento == "MONTO_FACTURA" %}
+                        ${{object.valor_descuento|floatformat:decimal}}
+                    {% elif object.tipo_descuento == 'PORCENTUAL_ITEM' or object.tipo_descuento == 'PORCENTUAL_FACTURA' %}
+                        {{object.valor_descuento|floatformat:decimal}}%
+                    {% endif %}
+                </td>
+                <td class="text-left">
+                    {% if object.fecha_inicio is not None %}
+                        {{object.fecha_inicio}}
+                    {% endif %}
+                </td>
+                <td class="text-left">
+                    {% if object.fecha_fin is not None %}
+                        {{object.fecha_fin}}
+                    {% endif %}
+                </td>
+                <td class="text-left">{{object.get_tipo_descuento_display}}</td>
+                <td><a href="{%url 'wsfacturae:UpdateDescuento' pk=object.id%}" ><span class="badge badge-warning"><i class="fa fa-edit"></i> Actualizar</span></a></td>
+                <td><a class="confirmacion" href="{%url 'wsfacturae:DeleteDescuento' pk=object.id%}" ><span class="badge badge-danger"><i class="fa fa-times-circle"></i> Eliminar</span></a></td>
+            </tr>
+        {%endfor%}
+        </tbody>
+    </table>

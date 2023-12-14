@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load filter_functions %}
+{% load static %}
+{% load markdownify %}
+{% load widget_tweaks %}
+{% load humanize %}
+
+
+
+{% block main %}
+<div class="row">
+            <div class="col-lg-8">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title"><h1>Subir imagen de DUI y/o NIT</h1>
+                        <div class="ibox-tools">
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                       <form method="post" enctype="multipart/form-data">
+                            {{ crispy }}
+                             <div class="form-group">
+                                {% render_field form.archivo class="form-control" %}
+                            </div>
+                            <div class="form-group">
+                                {% csrf_token %}
+                                {% for hidden in form.hidden_fields %}
+                                  {{ hidden }}
+                                {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <div class="ibox">
+                                    <div class="ibox-content text-center p-md">
+                                         <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE"><i class="fa fa-upload"></i> Cargar Archivo</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                       </form>
+
+                        <div id="links" data-slideshow="100" class="modal-fullscreen-xs-down">
+
+                            {% for ag in cliente_archivos %}
+
+                            <a href="/static/images/arc_clientes/{{ ag.cliente.id }}/{{ ag.filename }}"  data-gallery="#blueimp-gallery-fullscreen">
+                                <img src="/static/images/arc_clientes/{{ ag.cliente.id }}/{{ ag.filename }}" class="img-thumbnail" width="40%"></a>
+                                <a  title="Eliminar Archivo" class="confirmacion" href="{% url 'cobrox:ClienteArchivoDelete' pk=ag.id %}"><button type="button" class="btn btn-outline btn-danger"><i class="fa fa-times-circle"></i></button></a>
+                                <br><br>
+                            {% endfor %}
+                        <!-- The Gallery as lightbox dialog, should be a child element of the document body -->
+                            <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" aria-label="image gallery" aria-modal="true" role="dialog">
+                                <div class="slides"></div>
+                                <h3 class="title"></h3>
+                                <a class="prev">‹</a>
+                                <a class="next">›</a>
+                                <a class="close">×</a>
+                                <a class="play-pause"></a>
+                                <ol class="indicator"></ol>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        <div class="col-lg-4">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+
+                    <div class="col-lg-12">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+
+                        {% if tip == 0 %}
+                            <div class="col-lg-{{ izq }}">
+                                <div class="ibox">
+                                    <div class="ibox-title">
+                                         <h5>
+                                         {% if view.credito.tipocredito == 0 %}
+                                            <span class="badge badge-primary">C</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                                        {% else %}
+                                            <span class="badge badge-success">R</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                                        {% endif %}:
+                                            {{ view.credito.id|stringformat:"06d" }}
+                                         </h5>
+
+                                         <div class="ibox-tools">
+                                             {% revigenciaestadocredito view.credito.saldopendiente view.credito.fechaven view.credito.estadocredito as liked_by_user_flag %}
+                                            {% if liked_by_user_flag == 0  %}
+                                                <span class="badge badge-info"><i class="fa fa-gear"></i> Vigente </span>
+                                            {% elif liked_by_user_flag  == 1  %}
+                                                <span class="badge badge-warning"><i class="fa fa-warning"></i> Vencido </span>
+                                            {% else  %}
+                                                <span class="badge badge-primary"><i class="fa fa-check-circle"></i> Cancelado </span>
+                                            {% endif %}
+                                         </div>
+
+                                    </div>
+                                    <div class="ibox-content">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="ibox">
+                                                    <div class="ibox-content text-left">
+                                                        <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Inicio:</small><br>
+                                                        <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Vencimiento:</small><br>
+                                                        <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Días:</small><br><br>
+                                                        <small class="text-navy"> Otorgado: </small> <br>
+                                                        <small class="text-navy"> Interés: </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="ibox">
+                                                    <div class="ibox-content text-right">
+                                                        <small>{{ view.credito.fechaini |date:'d-b-Y ' }} </small><br>
+                                                        <small>{{ view.credito.fechaven |date:'d-b-Y ' }} </small><br>
+                                                        <small>{{ view.credito.qtydiascuota }} </small><br><br>
+                                                        <small>$ {{ view.credito.montootorgado|intcomma }} </small><br>
+                                                        <small>{{ view.credito.interespct }}% </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <div class="ibox">
+                                                    <div class="ibox-content text-left">
+                                                        <small class="text-navy"><strong> Cuota:</strong> </small> <br>
+                                                        <small class="text-navy"> Saldo : </small> <br><br>
+
+                                                        <small class="text-navy">&nbsp;Cuotas Pend.:</small><br>
+                                                        <small class="text-navy">&nbsp;Cuotas Pag:</small>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <div class="ibox">
+                                                    <div class="ibox-content text-right">
+                                                        <small>$ {{ view.credito.totalcuota|intcomma }} </small><br>
+                                                        <small>$ {{ view.credito.saldopendiente|intcomma }} </small><br><br>
+
+                                                        <small>{{ view.credito.cuotaspendientes }} </small><br>
+                                                        <small>{{ view.credito.cuotaspagadas }} </small>
+
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>
+                            <p><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</p>
+                            <p><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</p>
+                            <p><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</p>
+                            <p><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</p>
+                            {% if view.cliente.celular %}
+                                <p><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</p>
+                            {% endif %}
+                            <p><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</p>
+                            {% if view.cliente.codigo %}
+                                <p><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</p>
+                            {% endif %}
+                        </p>
+
+                        {% endif %}
+                        <a href="{% url 'cobrox:Credito_clientelist' pk=view.cliente.id %}"  >
+                        <span class="badge badge-primary"><h4> <i class="fa fa-backward"></i> Regresar a Clientes</h4></span>
+                         </a>
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

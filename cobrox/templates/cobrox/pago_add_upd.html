@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% load filter_functions %}
+{% load humanize %}
+{% load widget_tweaks %}
+{% load static %}
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-tipo_clientes %}class="active"{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block main %}
+<div class="row">
+
+    <div class="col-lg-4">
+        <div class="ibox">
+            <div class="ibox-title">
+                 <h5>
+                 {% if view.credito.tipocredito == 0 %}
+                    <span class="badge badge-primary">C</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                {% else %}
+                    <span class="badge badge-success">R</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                {% endif %}:
+                    {{ view.credito.id|stringformat:"06d" }}
+                 </h5>
+
+                 <div class="ibox-tools">
+                     {% revigenciaestadocredito view.credito.saldopendiente view.credito.fechaven view.credito.estadocredito as liked_by_user_flag %}
+                    {% if liked_by_user_flag == 0  %}
+                        <span class="badge badge-info"><i class="fa fa-gear"></i> Vigente </span>
+                    {% elif liked_by_user_flag  == 1  %}
+                        <span class="badge badge-warning"><i class="fa fa-warning"></i> Vencido </span>
+                    {% else  %}
+                        <span class="badge badge-primary"><i class="fa fa-check-circle"></i> Cancelado </span>
+                    {% endif %}
+                 </div>
+
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="ibox">
+
+                            <div class="ibox-content text-left">
+                                <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Inicio:</small><br>
+                                <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Vencimiento:</small><br>
+                                <i class="fa fa-calendar"></i></i><small class="text-navy">&nbsp;Días:</small><br><br>
+                                <small class="text-navy"> Otorgado: </small> <br>
+                                <small class="text-navy"> Interés: </small> <br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-content text-right">
+                                <small>{{ view.credito.fechaini |date:'d-b-Y ' }} </small><br>
+                                <small>{{ view.credito.fechaven |date:'d-b-Y ' }} </small><br>
+                                <small>{{ view.credito.qtydiascuota }} </small><br><br>
+                                <small>$ {{ view.credito.montootorgado|intcomma }} </small><br>
+                                <small>{{ view.credito.interespct }}% </small>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-content text-left">
+                                <small class="text-navy"><strong> Cuota:</strong> </small> <br>
+                                <small class="text-navy"> Saldo Pendiente: </small> <br><br>
+
+                                <small class="text-navy">&nbsp;Cuotas Pend.:</small><br>
+                                <small class="text-navy">&nbsp;Cuotas Pagadas:</small><br>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-content text-right">
+                                <small>$ {{ view.credito.totalcuota|intcomma }} </small><br>
+                                <small>$ {{ view.credito.saldopendiente|intcomma }} </small><br><br>
+
+                                <small>{{ view.credito.cuotaspendientes }} </small><br>
+                                <small>{{ view.credito.cuotaspagadas }} </small><br>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+<div class="col-lg-5">
+    <form method="post" id="orderForm"  enctype="multipart/form-data" data-lista-url="{% url 'cobrox:ajax_load_calculo_distribucion_pago' %}">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h5>Introduzca los Datos del Pago</h5>
+
+        </div>
+         <div class="ibox-content">
+
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+                {{ crispy }}
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h5>{{ form.monto.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.monto class="form-control" %}
+                        </div>
+                        <h5>{{ form.recibo.label }}</h5>
+                        <div class="form-group">
+                        {% render_field form.recibo class="form-control" %}
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h5>{{ form.fecha.label }}</h5>
+                        <div class="form-group" id="fechadec">
+                            <div class="input-group date">
+                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>{% render_field form.fecha class="form-control" %}
+                                </div>
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+                {% for hidden in form.hidden_fields %}
+                      {{ hidden }}
+                    {% endfor %}
+                 <div class="ibox-content text-center p-md">
+
+
+                    &nbsp;&nbsp;<button id="gen_calculo" type="button" class="btn btn-w-m btn-primary"><i class="fa fa-calculator"></i> &nbsp;Calcular</button> &nbsp;
+
+                </div>
+
+                <div id="divcalculo"></div>
+            </div>
+    </div>
+    </form>
+</div>
+<div class="col-lg-3">
+    <div class="ibox">
+        <div class="ibox-title ">
+            <h5> Detalle de Cliente</h5>
+        </div>
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+
+                    <div class="col-lg-12">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+                        <div class="m-b-sm">
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+                        </div>
+                        <strong>
+                            General
+                        </strong>
+                        <p>
+                            <h5><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</h5>
+                            <h5><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</h5>
+                            <h5><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</h5>
+                            <h5><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</h5>
+                            {% if view.cliente.celular %}
+                                <h5><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</h5>
+                            {% endif %}
+                            <h5><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</h5>
+                            {% if view.cliente.codigo %}
+                                <h5><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</h5>
+                            {% endif %}
+                        </p>
+
+                        <a href="{% url 'cobrox:Credito_clientelist' pk=view.cliente.id %}"  >
+                        <span class="badge badge-primary"><h4> <i class="fa fa-backward"></i> Regresar </h4></span>
+                         </a>
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+
+    $("#gen_calculo").click(function () {
+      var url_p = $("#orderForm").attr("data-lista-url");  // get the url of the `load_cities` view
+      var monto = $("#id_monto").val();  // get the selected country ID from the HTML input
+      var credito = $("#id_credito").val();  // get the selected country ID from the HTML input
+      var fecha = $("#id_fecha").val();  // get the selected country ID from the HTML input
+      var recibo = $("#id_recibo").val();  // get the selected country ID from the HTML input
+      var tipoingreso = $("#id_tipoingreso").val();  // get the selected country ID from the HTML input
+      $('#gen_calculo').prop('disabled', true);
+      $("#orderForm :input").each(function() {
+           $(this).attr("readonly", true);
+        });
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'monto': monto,       // add the country id to the GET parameters
+          'credito':credito,
+          'fecha':fecha,
+          'recibo':recibo,
+          'tipoingreso':tipoingreso
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#divcalculo").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+      });
+
+    });
+
+
+  </script>
+
+{% endblock %}
+

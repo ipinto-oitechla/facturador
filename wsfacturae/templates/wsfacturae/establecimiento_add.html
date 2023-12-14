@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% load markdownify %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block nav-operacion %}class="active"{% endblock %}
+{% block nav-operacion-receptor %}class="active"{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block main %}
+<div class="col-md-12">
+    <div class="ibox">
+        <div class="ibox-title">
+            <h2><b>Introduzca los Datos del Establecimiento</b></h2>
+        </div>
+         <div class="ibox-content">
+            <form method="post" id="orderForm" enctype="multipart/form-data" data-lista-url="{% url 'wsfacturae:ajax_load_munis' %}" data-subcats-url="{% url 'wsfacturae:ajax_load_subacts' %}" data-actecos-url="{% url 'wsfacturae:ajax_load_actecos' %}">
+                {{ crispy }}
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Tipo de establecimiento: </h5>
+                            <div class="form-group">
+                              {% render_field form.tipoEstable class="form-control"  %}
+                            </div>
+                        </div>
+ 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Telefono:</h5>
+                            <div class="form-group">
+                              {% render_field form.telefono class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Celular: </h5>
+                            <div class="form-group">
+                              {% render_field form.celular class+="form-control" %}
+                            </div>
+                        </div>
+  
+                    </div>
+                    <h5>Departamento:</h5>
+                    <div class="form-group">
+                      {% render_field form.departamento class="form-control" %}
+                    </div>
+
+                    <h5>Municipio: </h5>
+                    <div class="form-group">
+                      {% render_field form.direccionMun id="id_municipio" class="form-control" %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <h5>Complemento de dirección: </h5>
+                    <div class="form-group">
+                      {% render_field form.complementodir class="form-control" %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Codigo establecimiento: </h5>
+                            <div class="form-group">
+                              {% render_field form.codestablec class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Codigo establecimiento MH:</h5>
+                            <div class="form-group">
+                              {% render_field form.codestablemh class="form-control" %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                </div>
+                 <div class="ibox-content text-center p-md">
+                <a href="{% url 'wsfacturae:EstablecimientoList' %}">
+                        <button type="button"  class="ladda-button btn btn-primary"><i class="fa fa-undo"></i>&nbsp; Cancelar</button>
+                      </a>
+                    &nbsp;&nbsp;
+                <button class="ladda-button btn btn-primary" type="submit" name="action" value="SAVE">
+                    <i class="fa fa-save"></i>&nbsp; Guardar
+                </button>
+                </div>
+            </form>
+         </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script>
+    $("#id_departamento").change(function () {
+      var url_p = $("#orderForm").attr("data-lista-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'departamento': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_municipio").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+      });
+
+    });
+
+    $("#id_catactividadeco").change(function () {
+      var url_p = $("#orderForm").attr("data-subcats-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'categoria': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_subactividadeco").html(data);  // replace the contents of the city input with the data that came from the server
+          $("#id_actividadeco").html("<option></option>");  // replace the contents of the city input with the data that came from the server
+        }
+      });
+    });
+
+    $("#id_subactividadeco").change(function () {
+      var url_p = $("#orderForm").attr("data-actecos-url");  // get the url of the `load_cities` view
+      var listaId = $(this).val();  // get the selected country ID from the HTML input
+
+      $.ajax({                       // initialize an AJAX request
+        url: url_p,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+        data: {
+          'subcategoria': listaId       // add the country id to the GET parameters
+        },
+        success: function (data) {   // `data` is the return of the `load_cities` view function
+          $("#id_actividadeco").html(data);  // replace the contents of the city input with the data that came from the server
+        }
+      });
+    });
+
+  </script>
+{% endblock %}

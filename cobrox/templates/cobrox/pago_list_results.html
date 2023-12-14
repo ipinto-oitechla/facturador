@@ -1,0 +1,77 @@
+{% load humanize %}
+{% load filter_functions %}
+<div class="results">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha </th>
+                    <th>ID </th>
+                    <th>Tipo</th>
+                    <th>Cliente</th>
+                    <th>Email</th>
+                    <th>Monto <br>DTE</th>
+                    <th>Control</th>
+
+                    <th>Estado</th>
+                    <th>Opciones</th>
+
+                </tr>
+                </thead>
+                    <tbody>
+                    {% with sum_montootorgado=0 sum_saldopendiente=0 sum_monto=0 sum_capital=0 sum_interes=0 %}
+
+
+
+
+
+
+                    {% for obj in object_list %}
+
+                        {% suma_objs obj.monto sum_monto as sum_monto %}
+
+                        <tr>
+                            <td>{{ obj.fecha |date:'d-b-Y ' }}</td>
+                            <td> {{ obj.id|stringformat:"06d" }}</td>
+                            <td>
+
+                               {% if obj.credito.tipocredito == 0 %}
+                                    <span class="badge badge-primary">C</span>&nbsp;{{ obj.credito.get_tipocredito_display }}
+                                {% else %}
+                                    <span class="badge badge-success">R</span>&nbsp;{{ obj.credito.get_tipocredito_display }}
+                                {% endif %}
+
+                            </td>
+                            <td> {{ obj.credito.cliente.nombre }} </td>
+                            <td> {{ obj.credito.cliente.email }} </td>
+
+
+                            <td align="right">$ {{ obj.monto|intcomma }}  </td>
+                            <td> {{ obj.aux_control }} </td>
+
+
+                            <td>Ingresado     </td>
+                            <td><a  target="_blank" href="https://cvv-assets.s3.amazonaws.com/static/cobrox/dte_json.json" download><button alt="File" type="button" class="btn btn-outline btn-info" title='JSON'><i class="fa fa-file-code-o"></i></button></a>
+                                <a  target="_blank" href="https://cvv-assets.s3.amazonaws.com/static/cobrox/dte_nomh.pdf" download><button alt="File" type="button" class="btn btn-outline btn-info" title='PDF'><i class="fa fa-file-pdf-o"></i></button></a>
+                                <a  href="{% url 'cobrox:EnviarMH' pk=obj.id %}" ><button alt="Update" type="button" class="btn btn-outline btn-info" title='Enviar MH'><i class="fa fa-bank"></i></button></a>  </td>
+
+                        </tr>
+                            {% if forloop.last %}
+                    <tr><td> </td><td> </td><td> </td><td> </td><td> </td><td align="right"><strong>$ {{ sum_monto|intcomma }}</strong> </td><td> </td>
+                        <td align="right"></td></tr>
+                            {% endif %}
+
+                        {% empty %}
+                        <tr>
+                            <td> No existen créditos registrados </td>
+                        </tr>
+
+                    {% endfor %}
+
+
+
+                    {% endwith %}
+
+                </tbody>
+                </table>
+</div>
+

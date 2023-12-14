@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load filter_functions %}
+{% block nav-reporte %}class="active"{% endblock %}
+{% block nav-reporte-cobros %}class="active"{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+
+            <div class="ibox-title"><h1><i class="fa fa-address-book"></i> Reporte de Cobros</h1>
+
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Cliente</th>
+
+                    <th>Monto <br>Otorgado</th>
+                    <th>Fecha <br> Inicio</th>
+                    <th>Fecha <br> Vcto.</th>
+                    <th>Días </th>
+                    <th>Cuota</th>
+                    <th>Cuotas <br>Pagadas </th>
+                    <th>Cuotas <br>Pendientes </th>
+                    <th>Saldo <br>Pendiente</th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% with zzona=-1 %}
+                    {% for obj in object_list %}
+
+
+                             {% if zzona == -1 or zzona != obj.cliente.zona.id %}
+                                {% changeZona obj.cliente.zona.id as zzona %}
+                                     <tr>
+                                        <td colspan="11" align="center"><strong>{{ obj.cliente.zona.nombre }}</strong></td>
+
+
+
+                                      </tr>
+                              {% endif %}
+                            <tr>
+                            <td> {{ obj.id|stringformat:"06d" }}</td>
+                            <td>
+                               {% if obj.tipocredito == 0 %}
+                                    <span class="badge badge-primary">C</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% else %}
+                                    <span class="badge badge-success">R</span>&nbsp;{{ obj.get_tipocredito_display }}
+                                {% endif %}
+                            </td>
+                            <td> {{ obj.cliente.nombre }}
+                            {% revigenciaestadocredito obj.saldopendiente obj.fechaven obj.estadocredito as liked_by_user_flag %}
+                             {% if liked_by_user_flag == 1  %}
+                                <span class="badge badge-warning"><i class="fa fa-warning"></i> Vencido </span>
+                            {% endif  %}
+
+                            </td>
+
+                            <td align="right">$ {{ obj.montootorgado|intcomma }}</td>
+                            <td> {{ obj.fechaini }} </td>
+                            <td> {{ obj.fechaven }} </td>
+                            <td> {{ obj.qtydiascuota }} </td>
+                            <td align="right">$ {{ obj.totalcuota }} </td>
+                            <td align="right"> {{ obj.cuotaspagadas}} </td>
+                            <td align="right"> {{ obj.cuotaspendientes}} </td>
+                            <td align="right">$ {{ obj.saldopendiente|intcomma }} </td>
+
+                            {% empty %}
+                            <td> No existen créditos registrados </td>
+                        </tr>
+                    {% endfor %}
+                    {% endwith %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

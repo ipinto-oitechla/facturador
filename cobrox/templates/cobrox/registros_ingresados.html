@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load filter_functions %}
+{% load static %}
+{% load humanize %}
+
+{% block nav-operacion %}class="active"{% endblock %}
+{% block nav-operacion-cierre %}class="active"{% endblock %}
+
+{% block main %}
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="ibox ">
+            <div class="ibox-content">
+                <h2><i class="fa fa-bank"></i> Montos de Ingreso</h2>
+                <ul class="list-group clear-list m-t">
+                 {% for ag in pagos_sum %}
+                    <li class="list-group-item">
+                        <span class="float-right">
+                            $ {{ ag.sum_monto|intcomma }}
+                        </span>
+                        <span class="label label-info">{{ forloop.counter }}</span>
+                        {% if ag.tipoingreso == 0 %}
+                            RECIBO
+                        {% else %}
+                            REFINANC
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                 </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox ">
+            <div class="ibox-content">
+                <h2><i class="fa fa-bank"></i> Qty Ingresos</h2>
+                <ul class="list-group clear-list m-t">
+                 {% for ag in pagos_count %}
+                    <li class="list-group-item">
+                        <span class="float-right">
+                             {{ ag.count_monto|intcomma }}
+                        </span>
+                        <span class="label label-info">{{ forloop.counter }}</span>
+                        {% if ag.tipoingreso == 0 %}
+                            RECIBO
+                        {% else %}
+                            REFINANC
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                 </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="ibox ">
+            <div class="ibox-content">
+                <h2><i class="fa fa-bank"></i> Montos  Créditos</h2>
+                <ul class="list-group clear-list m-t">
+                 {% for ag in creditos_sum %}
+                    <li class="list-group-item">
+                        <span class="float-right">
+                            $ {{ ag.sum_monto|intcomma }}
+                        </span>
+                        <span class="label label-info">{{ forloop.counter }}</span>
+                        {% if ag.tipocredito == 0 %}
+                            CRÉDITO
+                        {% else %}
+                            REFINANC
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                 </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox ">
+            <div class="ibox-content">
+                <h2><i class="fa fa-bank"></i> Qty de Créditos</h2>
+                <ul class="list-group clear-list m-t">
+                 {% for ag in creditos_count %}
+                    <li class="list-group-item">
+                        <span class="float-right">
+                             {{ ag.count_monto|intcomma }}
+                        </span>
+                        <span class="label label-info">{{ forloop.counter }}</span>
+                        {% if ag.tipocredito == 0 %}
+                            CRÉDITO
+                        {% else %}
+                            REFINANC
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                 </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-lg-9">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5><i class="fa fa-archive"></i> Pagos No Conciliados</h5>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th align="center">Cliente</th>
+                    <th align="center">Fecha</th>
+                    <th align="center">Recibido</th>
+                    <th align="center">Capital</th>
+                    <th align="center">Interés</th>
+                    <th align="center">Cuotas<br> Abonadas</th>
+                    <th align="center">Recibo</th>
+                    <th align="center">Tipo</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for obj in pagos %}
+                        <tr>
+                            <td> {{ obj.credito.cliente.nombre }}</td>
+                            <td> {{ obj.fecha }} </td>
+                            <td align="right">$ {{ obj.monto|intcomma }}</td>
+                            <td align="right">$ {{ obj.capital|intcomma }} </td>
+                            <td align="right">$ {{ obj.interes|intcomma }} </td>
+                            <td align="right"> {{ obj.cuota }} </td>
+                            <td> {{ obj.recibo }} </td>
+
+                            {% if obj.tipoingreso == 0 %}
+                                <td>RECIBO</td>
+                            {% else %}
+                                <td>REFINANC</td>
+                            {% endif %}
+
+                            {% empty %}
+                            <td> No existen clientes registrados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5><i class="fa fa-archive"></i> Proceso Cierre</h5>
+            </div>
+            <div class="ibox-content text-center">
+                    <a class="confirmacion_trans" href="{% url 'cobrox:CerrarRegistros' %}"  >
+                                    <h3><span class="badge badge-warning"> <i class="fa fa-warning"></i> Cerrar Registros</span></h3>
+                    </a><br>
+                    <small>Recuerde que esta transacción no puede revertirse </small>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-9">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <h5><i class="fa fa-archive"></i> Créditos No Conciliados</h5>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th align="center">Cliente</th>
+                    <th align="center">Fecha Inicio</th>
+                    <th align="center">Fecha Vencimiento</th>
+                    <th align="center">Días</th>
+                    <th align="center">Monto</th>
+                    <th align="center">Pct</th>
+                    <th align="center">Cuota</th>
+
+                    <th align="center">Tipo</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                    {% for obj in creditos %}
+                        <tr>
+                            <td> {{ obj.cliente.nombre }}</td>
+                            <td align="center"> {{ obj.fechaini }} </td>
+                            <td align="center"> {{ obj.fechaven }} </td>
+                            <td align="right"> {{ obj.qtydiascuota }} </td>
+                            <td align="right">$ {{ obj.montootorgado|intcomma }}</td>
+                            <td align="right"> {{ obj.interespct|intcomma }}% </td>
+                            <td align="right">$ {{ obj.totalcuota|intcomma }} </td>
+
+                            {% if obj.tipocredito == 0 %}
+                                <td>CRÉDITO</td>
+                            {% else %}
+                                <td>REFINANCIAMIENTO</td>
+                            {% endif %}
+                            {% empty %}
+                            <td> No existen clientes registrados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+

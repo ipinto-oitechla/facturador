@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/style.css' %}" >
+
+
+    <title>CONSULTORIO VIRTUAL | </title>
+
+ </head>
+
+<body>
+
+<div id="wrapper">
+
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                        {% if  user.medico.image %}
+                            <img class="rounded-circle" src="{{ MEDIA_URL }}/{{ user.medico.image }}" width="100%" style="width:40px"/></a>
+                        {% else %}
+                            <img class="rounded-circle"  src="{{ MEDIA_URL }}/uploaded/profiles_pacientes/img_avatar3.jpg" width="100%" style="width:40px"/>
+                        {% endif %}
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="block m-t-xs font-bold">{{ user.medico.nombres }} </span>
+                            <span class="block m-t-xs font-bold">{{ user.medico.apellidos }} </span>
+                            <span class="text-muted text-xs block">Opciones<b class="caret"></b></span>
+                        </a>
+
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a class="dropdown-item" href="/opcionesmedico">Opciones Medico</a></li>
+                             <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="user/logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        CV+
+                    </div>
+                </li>
+                <li class="active">
+                    <a href="/dashboard"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboard</span> </a>
+                </li>
+                <li>
+                    <a href="/pacientes"><i class="fa fa-address-book"></i> <span class="nav-label">Pacientes</span></a>
+                </li>
+                <li>
+                    <a href="/inventario"><i class="fa fa-barcode"></i> <span class="nav-label">Inventario</span> </a>
+                </li>
+                <li>
+                    <a href="/agenda/events"><i class="fa fa-calendar"></i> <span class="nav-label">Agenda</span> </a>
+                </li>
+                <li>
+                    <a href="/opcionesmedico"><i class="fa fa-user-md"></i> <span class="nav-label">Configuracion</span> </a>
+                </li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                    <form role="search" class="navbar-form-custom" method="post" action="#">
+                        <div class="form-group">
+                            <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
+                        </div>
+                    </form>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <li>
+                        <span class="m-r-sm text-muted welcome-message">Bienvenido a Consultorio Virtual Médico</span>
+                    </li>
+                    <li>
+                        <a href="/user/logout">
+                            <i class="fa fa-sign-out"></i> Log out
+                        </a>
+                    </li>
+                </ul>
+
+            </nav>
+        </div>
+        <div class="wrapper wrapper-content animated fadeInRight">
+            <div class="row">
+
+                <div class="col-lg-9">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">{% block title %}{% endblock %}
+                            <div class="ibox-tools">
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            {% block main %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>Table example</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link" href="">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                    <i class="fa fa-wrench"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-user">
+                                    <li><a href="#">Config option 1</a>
+                                    </li>
+                                    <li><a href="#">Config option 2</a>
+                                    </li>
+                                </ul>
+                                <a class="close-link" href="">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="table-responsive">
+                                {% block sidebar%}{% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="pull-right">
+                10GB of <strong>250GB</strong> Free.
+            </div>
+            <div>
+                <strong>Copyright</strong> Example Company &copy; 2014-2018
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Mainly scripts -->
+
+<!-- Mainly scripts -->
+<script src="{% static 'historialmed/js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static 'historialmed/js/popper.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'historialmed/js/inspinia.js' %}"></script>
+<script src="{% static 'historialmed/plugins/pace/pace.min.js' %}"></script>
+
+
+
+</body>
+
+</html>

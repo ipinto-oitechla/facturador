@@ -1,0 +1,186 @@
+{% extends "base.html" %} {% load markdownify %} {% load crispy_forms_tags %} {%load widget_tweaks %} {% block nav-operacion %}class="active"{% endblock %} {%block nav-operacion-receptor %}class="active"{% endblock %} {% block title %}{%endblock %} {% block main %}
+<div class="col-md-10">
+  <div class="ibox">
+    <div class="ibox-title">
+      <h5>Introduzca los Datos del Receptor</h5>
+    </div>
+    <div class="ibox-content">
+      <form
+        method="post"
+        id="orderForm"
+        enctype="multipart/form-data"
+        data-lista-url="{% url 'wsfacturae:ajax_load_munis' %}"
+        data-subcats-url="{% url 'wsfacturae:ajax_load_subacts' %}"
+        data-actecos-url="{% url 'wsfacturae:ajax_load_actecos' %}"
+      >
+        {{ crispy }} {% csrf_token %} {% if form.errors %}
+        <div class="alert alert-danger">{{ form.errors }}</div>
+        {% endif %}
+        <div class="row">
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-md-6">
+                <h5>{{ form.tipodocumento.label }}</h5>
+                <div class="form-group">
+                  {% render_field form.tipodocumento class="form-control" %}
+                </div>
+
+                <h5>{{ form.nodocumento.label }}</h5>
+                <div class="form-group">
+                  {% render_field form.nodocumento class="form-control" %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h5>{{ form.nrc.label }}</h5>
+                <div class="form-group">
+                  {% render_field form.nrc class="form-control" %}
+                </div>
+              </div>
+            </div>
+
+            <h5>{{ form.nombre.label }}</h5>
+            <div class="form-group">
+              {% render_field form.nombre class="form-control" %}
+            </div>
+
+            <h5>{{ form.nombreComercial.label }}</h5>
+            <div class="form-group">
+              {% render_field form.nombreComercial class="form-control" %}
+            </div>
+
+            <h5>{{ form.catactividadeco.label }}</h5>
+            <div class="form-group">
+              {% render_field form.catactividadeco class="form-control" %}
+            </div>
+
+            <h5>{{ form.subactividadeco.label }}</h5>
+            <div class="form-group">
+              {% render_field form.subactividadeco class="form-control" %}
+            </div>
+
+            <h5>{{ form.actividadeco.label }}</h5>
+            <div class="form-group">
+              {% render_field form.actividadeco class="form-control" %}
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <h5>{{ form.telefono.label }}</h5>
+                <div class="form-group">
+                  {% render_field form.telefono class="form-control" %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h5>{{ form.celular.label }}</h5>
+                <div class="form-group">
+                  {% render_field form.celular class="form-control" %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h5>{{ form.complementodir.label }}</h5>
+            <div class="form-group">
+              {% render_field form.complementodir class="form-control" %}
+            </div>
+
+            <h5>{{ form.departamento.label }}</h5>
+            <div class="form-group">
+              {% render_field form.departamento class="form-control" %}
+            </div>
+
+            <h5>{{ form.municipio.label }}</h5>
+            <div class="form-group">
+              {% render_field form.municipio class="form-control" %}
+            </div>
+
+            <h5>{{ form.email.label }}</h5>
+            <div class="form-group">
+              {% render_field form.email class="form-control" %}
+            </div>
+            <h5>{{ form.gran_contr.label }}</h5>
+            <div class="form-group">
+              {% render_field form.gran_contr class="form-control" %}
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="ibox-content text-center p-md">
+          <a href="{% url 'wsfacturae:ReceptorList' %}">
+            <button type="button" class="ladda-button btn btn-primary">
+              <i class="fa fa-undo"></i>&nbsp; Cancelar
+            </button>
+          </a>
+          &nbsp;&nbsp;
+          <a href="{% url 'wsfacturae:ReceptorList' %}">
+            <button
+              class="ladda-button btn btn-primary"
+              type="submit"
+              name="action"
+              value="SAVE"
+            >
+              <i class="fa fa-save"></i>&nbsp; Guardar
+            </button>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+  $("#id_departamento").change(function () {
+    var url_p = $("#orderForm").attr("data-lista-url"); // get the url of the `load_cities` view
+    var listaId = $(this).val(); // get the selected country ID from the HTML input
+
+    $.ajax({
+      // initialize an AJAX request
+      url: url_p, // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+      data: {
+        departamento: listaId, // add the country id to the GET parameters
+      },
+      success: function (data) {
+        // `data` is the return of the `load_cities` view function
+        $("#id_municipio").html(data); // replace the contents of the city input with the data that came from the server
+      },
+    });
+  });
+
+  $("#id_catactividadeco").change(function () {
+    var url_p = $("#orderForm").attr("data-subcats-url"); // get the url of the `load_cities` view
+    var listaId = $(this).val(); // get the selected country ID from the HTML input
+
+    $.ajax({
+      // initialize an AJAX request
+      url: url_p, // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+      data: {
+        categoria: listaId, // add the country id to the GET parameters
+      },
+      success: function (data) {
+        // `data` is the return of the `load_cities` view function
+        $("#id_subactividadeco").html(data); // replace the contents of the city input with the data that came from the server
+        $("#id_actividadeco").html("<option></option>"); // replace the contents of the city input with the data that came from the server
+      },
+    });
+  });
+
+  $("#id_subactividadeco").change(function () {
+    var url_p = $("#orderForm").attr("data-actecos-url"); // get the url of the `load_cities` view
+    var listaId = $(this).val(); // get the selected country ID from the HTML input
+
+    $.ajax({
+      // initialize an AJAX request
+      url: url_p, // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+      data: {
+        subcategoria: listaId, // add the country id to the GET parameters
+      },
+      success: function (data) {
+        // `data` is the return of the `load_cities` view function
+        $("#id_actividadeco").html(data); // replace the contents of the city input with the data that came from the server
+      },
+    });
+  });
+</script>
+{% endblock %}

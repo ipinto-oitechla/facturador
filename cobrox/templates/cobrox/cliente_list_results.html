@@ -1,0 +1,39 @@
+<div class="results">
+{% include 'cobrox/pagination.html' with form_target='cliente-list-filter' %}
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Zona</th>
+                    <th>Teléfono</th>
+                    <th>DUI</th>
+                    <th>NIT</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td> {{ obj.nombre }}</td>
+                            <td> {{ obj.zona }} </td>
+                            <td> {{ obj.telefono }}</td>
+                            <td> {{ obj.dui }} </td>
+                            <td> {{ obj.nit }} </td>
+                            <td> {{ obj.email }} </td>
+                            {% if view.user_rol_filial.rol.codigo != 'OPE' %}
+                            <td><a href="{% url 'cobrox:ClienteUpdate' pk=obj.id %}" ><button type="button" class="btn btn-outline btn-warning" title='Editar'><i class="fa fa-pencil"></i></button></a>
+                                 &nbsp;<a  href="{% url 'cobrox:Dte_clientelist' pk=obj.id %}" ><button alt="Ver Créditos" type="button" class="btn btn-outline btn-info" title='Ver Créditos'><i class="fa fa-database"></i></button></a>
+                                &nbsp;<a class="confirmacion" href="{% url 'cobrox:ClienteDelete' pk=obj.id %}" ><button alt="Eliminar" type="button" class="btn btn-outline btn-danger" title='Eliminar'><i class="fa fa-times-circle"></i></button></a>
+                            </td>
+                            {% else %}
+                            <td> </td>
+                            {% endif %}
+                            {% empty %}
+                            <td> No existen clientes registrados </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+</div>
+

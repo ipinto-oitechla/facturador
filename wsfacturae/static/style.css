@@ -1,0 +1,52 @@
+
+.titulo{
+    line-height: 1.2;
+    font-size:20px;
+    text-align: center;
+}
+.titulo .subtitle{
+    font-size:15px;
+    text-align: center;
+}
+.titulo span{
+        text-align: center;
+        font-size:30px;
+}
+
+.table{
+    border:0.5px solid rgba(207, 202, 202, 0.912);
+    text-align:center;
+    padding:2px;
+}
+.table th{
+    background-color: #ccc;
+}
+
+.table-detalle .columna2{
+    border:0.5px solid rgba(207, 202, 202, 0.912);
+    text-align:center;
+    padding:3px;
+    vertical-align: middle;
+}
+.table-detalle .columna1{
+    text-align:right;
+    padding:3px;
+    vertical-align: middle;
+
+}
+.columna2{
+    width:158px;
+    vertical-align: middle;
+}
+
+.grid-item{
+    margin-top:2px;
+}
+
+.grid .col1{
+    text-align: right;
+    width: 100px;
+}
+.gray-row{
+    background-color: #f1f1f1;
+}

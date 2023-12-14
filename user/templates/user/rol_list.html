@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block nav-admon %}class="active"{% endblock %}
+{% block nav-admon-roles %}class="active"{% endblock %}
+{% block title %}
+<h1>Roles</h1>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title"><h1>Roles</h1>
+                <div class="ibox-tools">
+                    <a href="{% url 'user:RolAdd'%}" ><span class="ladda-button badge badge-primary"><h5> <i class="fa fa-plus-circle"></i>&nbsp; Crear Nuevo Rol</h5></span> </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Código</th>
+                    <th></th>
+                </tr>
+                </thead>
+                    <tbody>
+                    {% for rol in object_list %}
+                        <tr>
+                            <td><span class="label label-info">{{ forloop.counter }}</span> {{ rol.nombre }} </a> </td>
+                            <td> {{ rol.codigo }} </td>
+                            <td><a href="{% url 'user:RolUpdate' pk=rol.id %}" ><span class="badge badge-warning">Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{% url 'user:RolDelete' pk=rol.id %}" ><span class="badge badge-danger">Eliminar</span></a></td>
+                        {% empty %}
+                            <td> No existen roles configuradas </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+

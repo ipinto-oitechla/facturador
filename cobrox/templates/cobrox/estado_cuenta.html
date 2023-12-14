@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load filter_functions %}
+{% load static %}
+{% load humanize %}
+{% block main %}
+<div class="row">
+<div class="col-lg-8">
+    <div class="ibox ">
+        <div class="ibox-title">
+            <h3><strong> Estado de Cuenta Crédito</strong></h3>
+        </div>
+        <div class="ibox-content inspinia-timeline">
+
+            <div class="timeline-item">
+                <div class="row">
+                    <div class="col-4 date">
+
+                        <i class="fa fa-calendar"></i></i>
+                        <small class="text-navy">Inicio: &nbsp;{{ view.credito.fechaini |date:'d-b-Y ' }}</small><br>
+                        <small class="text-navy">Vencimiento: &nbsp;{{ view.credito.fechaven |date:'d-b-Y ' }}</small><br>
+                        <small class="text-navy">Días: &nbsp;{{ view.credito.qtydiascuota }}</small>
+                        <br/>
+                        <small class="text-navy">[ Otorgado: $ {{ view.credito.montootorgado|intcomma }} ] </small> <br>
+                        <small class="text-navy"> [ Interés:  {{ view.credito.interespct }}% ] </small> <br>
+                        <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+
+                        {% revigenciaestadocredito view.credito.saldopendiente view.credito.fechaven view.credito.estadocredito as liked_by_user_flag %}
+                        {% if liked_by_user_flag == 0  %}
+                            <span class="badge badge-info"><i class="fa fa-gear"></i> Vigente </span>
+                        {% elif liked_by_user_flag  == 1  %}
+                            <span class="badge badge-warning"><i class="fa fa-warning"></i> Vencido </span>
+                        {% else  %}
+                            <span class="badge badge-primary"><i class="fa fa-check-circle"></i> Cancelado </span>
+                            {% refinanc_originado view.credito as refinanc_o %}
+
+                            {% if refinanc_o %}
+                                <br><br>
+
+                                <span class="badge badge-success">R</span>&nbsp;{{ refinanc_o.get_tipocredito_display }}
+                                {{ refinanc_o.id|stringformat:"06d" }}
+                            {% endif %}
+                        {% endif %}
+                        <br>
+                        <br>
+
+                    </div>
+                    <div class="col content">
+                        <p><strong>ID:</strong> {{ view.credito.id|stringformat:"06d" }}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {% if view.credito.tipocredito == 1 %}
+                                {% credito_original view.credito as coriginal_o %}
+
+                                {% if coriginal_o %}
+                                    <small>Base:
+                                    {% if coriginal_o.tipocredito == 0 %}
+                                        <span class="badge badge-primary">C</span>&nbsp;{{ coriginal_o.get_tipocredito_display }}
+                                    {% else %}
+                                        <span class="badge badge-success">R</span>&nbsp;{{ coriginal_o.get_tipocredito_display }}
+                                    {% endif %}
+
+
+                                    {{ coriginal_o.id|stringformat:"06d" }}</small>
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                        <p><strong>Cuotas Pendientes:</strong>  {{ view.credito.cuotaspendientes }}  &nbsp;&nbsp;
+                        Cuotas Pagadas: {{  view.credito.cuotaspagadas  }} &nbsp;&nbsp;&nbsp;
+                            {% if view.credito.tipocredito == 0 %}
+                                <span class="badge badge-primary">C</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                            {% else %}
+                                <span class="badge badge-success">R</span>&nbsp;{{ view.credito.get_tipocredito_display }}
+                            {% endif %}
+
+                        </p>
+
+                        <div class="media-body text-right ">
+                            <p> Cuota: <strong>$ {{ view.credito.totalcuota|intcomma   }} </strong> &nbsp;&nbsp;
+                                Capital: $ {{ view.credito.capitalcuota|intcomma  }}&nbsp;&nbsp;
+                                Interés: $ {{ view.credito.interescuota|intcomma  }}
+                             </p>
+
+
+                            <p> Interes Total: $ {{ view.credito.interestotal|intcomma  }}  </p>
+                            <p> Capital Total: $ {{ view.credito.montootorgado|intcomma  }}  </p>
+                            <p> Total: $ {{ view.credito.montoyinterestotal|intcomma  }}  </p>
+
+                            {% if view.credito.nm_estado == 1 %}
+                                {% if view.estadocredito == 0 %}
+                                <a href="{% url 'cobrox:PagoAdd' pk=view.credito.id %}"  >
+                                    <span class="badge badge-primary"> <i class="fa fa-credit-card"></i> Ingresar Pago</span>
+                                </a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if view.credito.estadoregistro == 0 %}
+                                <a class="confirmacion_trans" href="{% url 'cobrox:CreditoDelete' pk=view.credito.id %}"  >
+                                    <span class="badge badge-danger"> <i class="fa fa-times-circle"></i> Borrar Crédito</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                        <div class="media-body text-left ">
+                            <br>
+                            <p><strong> Saldo Total Pendiente: $  {{ view.credito.saldopendiente|intcomma  }}
+                                 </strong></p>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><small class="text-navy"><strong>Fecha</strong></small></th>
+
+                    <th><small class="text-navy"><strong>Monto</strong></small></th>
+                    <th><small class="text-navy"><strong>Capital</strong></small></th>
+                    <th><small class="text-navy"><strong>Interés</strong></small></th>
+                    <th><small class="text-navy"><strong>Cuotas<br>Pagadas</strong></small></th>
+                    <th><small class="text-navy"><strong>Recibo</strong></small></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                <tr>
+                    <td><small >{{ obj.fecha |date:'d-b-Y ' }}</small></td>
+                    <td><small >$ {{ obj.monto|intcomma }}  </small> </td>
+                    <td><small >$ {{ obj.capital|intcomma }}  </small> </td>
+                    <td><small >$ {{ obj.interes|intcomma }}  </small> </td>
+                    <td><small > {{ obj.cuota|intcomma }}  </small> </td>
+                    <td><small >  {{ obj.recibo }}  </small> </td>
+
+                </tr>
+                {% empty %}
+                    <small>Crédito no tiene pagos registrados</small>
+                {% endfor %}
+                </tbody>
+                </table>
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-4">
+    <div class="ibox">
+        <div class="ibox-content">
+            <div id="contact-4" class="tab-pane">
+                <div class="row m-b-lg">
+                    <div class="col-lg-4 text-center">
+                        <h2>{{ view.cliente.nombre }} </h2>
+
+                        <div class="m-b-sm">
+
+                            <img class="rounded-circle"  src="{% static 'images/nogen-avatar.png' %}"  width="100%" style="width:40px"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <strong>
+                            General
+                        </strong>
+                        <p>
+                            <p><i class="fa fa-map-marker"></i> {{ view.cliente.direccion }}, {{ view.cliente.zona }}</p>
+                            <p><i class="fa fa-drivers-license"></i>  {{ view.cliente.dui }}</p>
+                            <p><i class="fa fa-vcard"></i>  {{ view.cliente.nit }}</p>
+                            <p><i class="fa fa-phone"></i>  {{ view.cliente.telefono }}</p>
+                            {% if view.cliente.celular %}
+                                <p><i class="fa fa-mobile"></i>  {{ view.cliente.celular }}</p>
+                            {% endif %}
+                            <p><i class="fa fa-tag"></i>  {{ view.cliente.tipo_cliente }}</p>
+                            {% if view.cliente.codigo %}
+                                <p><i class="fa fa-archive"></i>  {{ view.cliente.codigo }}</p>
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'cobrox:CreditoAdd' pk=view.cliente.id %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-plus-circle"></i> Ir Registrar Crédito</h4></span>
+                         </a>
+                            <p> </p>
+                        <a href="{% url 'cobrox:CreditoList' act=view.credito.nm_estado %}"  >
+                        <span class="ladda-button badge badge-primary"><h4> <i class="fa fa-backward"></i> Regresar a Créditos</h4></span>
+                         </a>
+                        <p>
+
+                                {% if view.cliente.observacion %}
+                                <p><div class="alert alert-warning alert-dismissable">
+                                            <strong><i class="fa fa-comments"></i> Observación: </strong>
+                                            <p>{{ view.cliente.observacion }}</p>
+                                </div></p>
+                                {% endif %}
+
+                         </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+{% endblock %}
+

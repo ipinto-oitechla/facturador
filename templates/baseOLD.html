@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    {% load static %}
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.css' %}"
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="/"><strong>CONSULTORIO VIRTUAL</strong></a>
+  <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarColor01" aria-label="Toggle navigation" type="button" data-target="#navbarColor01" data-toggle="collapse">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarColor01">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/pacientes">Pacientes <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/consultasmedicas">Consultas Medicas</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/consultasmedicasdia">Consultas Medicas x Dia</a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link" href="/dashboard"><strong>DASHBOARD</strong></a>
+      </li>
+    </ul>
+
+    <ul class="nav navbar-nav ml-auto">
+      <li class="nav-item">
+      <a class="nav-link" href="{% url 'inventario:index' %}">Inventario</a>
+    </li>
+      <li class="nav-item">
+      <a class="nav-link" href="{% url 'event:ListEvents' %}">Agenda</a>
+    </li>
+      <li class="nav-item">
+          {% if user.is_authenticated %}
+            <a class="nav-link" href="/user/logout" > Logout</a>
+            <li class="nav-item">
+            {% if  user.medico.image %}
+                <a href="{% url 'historialmed:opcionesMedico' %}" ><img class="card-img-top img-thumbnail" src="{{ MEDIA_URL }}/{{ user.medico.image }}" width="100%" style="width:40px"/>{{ user.medico.nombres }}</a>
+            {% else %}
+                <a href="{% url 'historialmed:opcionesMedico' %}" ><img class="card-img-top img-thumbnail" src="{{ MEDIA_URL }}/uploaded/profiles_pacientes/img_avatar3.jpg" width="100%" style="width:40px"/>{{ user.medico.nombres }}</a>
+            {% endif %}
+            </li>
+        {% else %}
+            <a class="nav-link" href="/user/login" >Login</a>
+        {% endif %}
+
+    </li>
+  </ul>
+
+  </div>
+</nav>
+    <div class="container">
+         <div class="page-header" id="banner">
+            <div class="row">
+                <div class="col-sm-10 historialmed-main">{% block main %}{% endblock %}</div>
+                <div class="col-sm-2 historialmed-sidebar">{% block sidebar%}{% endblock %}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

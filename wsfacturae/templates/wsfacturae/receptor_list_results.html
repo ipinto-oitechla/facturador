@@ -1,0 +1,74 @@
+<div class="results">
+    {% include 'cobrox/pagination.html' with form_target='receptor-list-filter' %}
+                    <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Tipo Documento</th>
+                        <th>No Documento</th>
+                        <th>Nombre</th>
+                        <th>Actividad Económica</th>
+                        <th>Municipio</th>
+                        <th>Departamento</th>
+                        <th>Creado</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                        <tbody>
+                        {% for obj in object_list %}
+                            <tr>
+                                <td> {{ obj.tipodocumento.descripcion }}</td>
+                                <td> {{ obj.nodocumento }} </td>
+                                <td> {{ obj.nombre }} </td>
+                                <td> {{ obj.actividadeco.descripcion }}</td>
+                                <td> {{ obj.municipio.descripcion }} </td>
+                                <td> {{ obj.municipio.departamento.descripcion }} </td>
+                                <td> {{ obj.date_creation }} </td>
+    
+    
+                                <td><a href="{% url 'wsfacturae:ReceptorUpdate' pk=obj.id %}" ><button type="button" class="btn btn-outline btn-warning" title='Editar'><i class="fa fa-pencil"></i></button></a>
+                                    &nbsp;<a class="confirmacion" href="{% url 'wsfacturae:ReceptorDelete' pk=obj.id %}" ><button alt="Eliminar" type="button" class="btn btn-outline btn-danger" title='Eliminar'><i class="fa fa-times-circle"></i></button></a>
+                                </td>
+                                {% empty %}
+                                <td> No existen receptores registrados </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+    </div>
+    <script>
+        $(document).ready(function (){
+            {% for message in messages %}
+                toastr.{{ message.tags }}("{{ message }}");
+           {% endfor %}
+    
+           Ladda.bind( '.ladda-button', { timeout: 20000 } );
+    
+    
+            $('.confirmacion').click(function(event) {
+                event.preventDefault();
+                var url = $(this).attr('href');
+                swal({
+                            title: "Estas seguro?",
+                            text: "No será posible recuperar este registro",
+                            type: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText: "Si, eliminarlo!",
+                            cancelButtonText: "No, cancelar!",
+                            closeOnConfirm: false,
+                            closeOnCancel: false },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                window.location.replace(url);
+                            } else {
+                                swal("Cancelado", "El registro se encuentra intacto", "error");
+                                return false;
+                            }
+                        });
+           });
+    
+    
+     });
+    
+     </script>
+    

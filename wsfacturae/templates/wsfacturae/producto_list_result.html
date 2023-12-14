@@ -1,0 +1,27 @@
+
+    <table  class="table table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Codigo</th>
+                <th>Descripcion</th>
+                <th>Tipo item</th>
+                <th class="text-right">Precio Un.</th>
+                <th>Tributo</th>
+                <th style="width:100px"></th>
+                <th style="width:100px"></th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+        {%for object in object_list%}
+            <tr>
+                <td class="text-left">{{object.codigo}}</td>
+                <td class="text-left">{{object.descripcion}}</td>
+                <td class="text-left">{{object.tipoitem}}</td>
+                <td class="text-right">{{object.preciouni |floatformat:decimal}}</td>
+                <td class="text-left">{{object.tributo.descripcion}}</td>
+                <td><a href="{%url 'wsfacturae:UpdateProducto' pk=object.id%}" ><span class="badge badge-warning"><i class="fa fa-edit"></i> Actualizar</span></a></td>
+                            <td><a class="confirmacion" href="{%url 'wsfacturae:DeleteProducto' pk=object.id%}" ><span class="badge badge-danger"><i class="fa fa-times-circle"></i> Eliminar</span></a></td>
+            </tr>
+        {%endfor%}
+        </tbody>
+    </table>

@@ -1,0 +1,46 @@
+[
+  {
+    "id": 43,
+    "fecha": "2023-07-25",
+    "codigo": "F12345",
+    "detalle": [
+      {
+        "producto": "Producto A",
+        "cantidad": 2,
+        "monto": "250.00000000"
+      },
+      {
+        "producto": "Producto B",
+        "cantidad": 10,
+        "monto": "250.00000000"
+      },
+      {
+        "producto": "Producto C",
+        "cantidad": 10,
+        "monto": "250.00000000"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "fecha": "2023-07-25",
+    "codigo": "A15345",
+    "detalle": [
+      {
+        "producto": "Producto D",
+        "cantidad": 2,
+        "monto": "250.00000000"
+      },
+      {
+        "producto": "Producto B",
+        "cantidad": 10,
+        "monto": "250.00000000"
+      },
+      {
+        "producto": "Producto E",
+        "cantidad": 10,
+        "monto": "250.00000000"
+      }
+    ]
+  }
+]

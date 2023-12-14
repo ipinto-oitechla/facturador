@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Factura</title>
+    <link href="wsfacturae/static/style.css" rel="stylesheet"/>
+</head>
+<style>
+  @page {
+    size: letter portrait;
+    margin: 40pt;
+    @frame title_frame {           /* Static Frame */
+      -pdf-frame-content: title_frame;
+      left: 50pt; width: 512pt; top: 20pt; height: 40pt;
+  }
+    @frame subtitle_frame{
+      -pdf-frame-content: subtitle_frame;
+      left: 50pt; width: 512pt; top: 15pt; height: 40pt;
+    }
+    @frame footer_frame {           /* Static frame */
+      -pdf-frame-content: footer_content;
+      left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+  }
+  }
+  @page content_page{
+    size: letter portrait;
+    margin: 40pt;
+    @frame footer_frame {           /* Static frame */
+      -pdf-frame-content: footer_content;
+      left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+  }
+  }
+</style>
+<body>
+  <div id="footer_content">FACTURA-001 - page <pdf:pagenumber>
+    of <pdf:pagecount>
+</div>
+        <div class="titulo">
+          <div  id="title_frame">
+          <h1 class="title">DOCUMENTO TRIBUTARIO ELECTRÓNICO</h1>
+          </div >
+              <h2 class="subtitle">{{factura.fk_Identificacion.tipoDte.descripcion}}</h2>
+            </div>
+            {%if img%}
+            <center><img class="qr_image" src={{img}} alt="QR IMG"/></center>
+            {% endif %}
+        </div>
+        <pdf:nexttemplate name="content_page" />
+        <div id="data" style="background-color:#ccc;margin-bottom:10px">
+          <span><b>Información: </b></span>
+          <div><div><table style="margin-top:5px"><tr><td>Código de generación: <span style="font-size:10px">{{factura.fk_Identificacion.codigoGeneracion}}</span> </td><td>Número de control: <span style="font-size:10px">{{factura.fk_Identificacion.numeroControl}}</span> </td><td>Sello de recepción: </td></tr></table></div>
+          <span><b>Información: </b></span>
+          <div><div><table style="margin-top:5px"><tr><td>Módelo de facturación: </td><td>Tipo de transmisión:  </td><td>Fecha y Hora de generación: </td></tr></table></div>
+        </div>
+<table style="margin-bottom:15px;padding:3px;">
+  <tr>
+    <th class="background-color:#ccc;width=100%"><span style="text-align:center;font-size:20px"><b>Emisor</b></span></th>
+    <th class="background-color:#ccc;width=100%"><span style="text-align:center;font-size:20px"><b>Receptor</b></span></th>
+    
+  </tr>
+  <td >
+        <div>
+          <table class="grid">
+            
+            <tr class="gray-row">
+              <td  class="col1">Nombre:  </td>
+              <td>{{factura.fk_emisor.nombre}}</td>
+            </tr>
+            <tr class="">
+              <td class="col1">NIT: </td>
+              <td> {{factura.fk_emisor.nit}}</td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">NRC: </td>
+              <td>{{factura.fk_emisor.nrc}}</td>
+            </tr>
+            <tr class="">
+              <td class="col1">Act. económica: </td>
+              <td style="font-size:7px"> {{factura.fk_emisor.actividadeco.descripcion}}</td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">Dirección: </td>
+              <td>{{factura.fk_puntoVenta.establecimiento_fk.direccionMun.descripcion}},{{factura.fk_puntoVenta.establecimiento_fk.direccionMun.departamento.descripcion}} </td>
+            </tr>
+            <tr class="">
+              <td class="col1">Teléfono: </td>
+              <td>{{factura.fk_puntoVenta.establecimiento_fk.telefono}} </td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">Correo: </td>
+              <td>{{factura.fk_emisor.email}} </td>
+            </tr>
+            <tr class="">
+              <td class="col1">Nombre comercial: </td>
+              <td> {{factura.fk_emisor.nombrecomercial}}</td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">Establecimiento: </td>
+              <td>{{factura.fk_puntoVenta.establecimiento_fk.tipoEstable.descripcion}} </td>
+            </tr>
+
+          </table>
+        </div>
+      </td>
+      <td>
+        <div>
+          <table class="grid">
+            
+            <tr class="gray-row">
+              <td class="col1">Nombre:  </td>
+              <td>{{factura.fk_receptor.nombre}} </td>
+            </tr>
+            <tr>
+              <td class="col1">{{factura.fk_receptor.tipodocumento.descripcion}}: </td>
+              <td>{{factura.fk_receptor.nodocumento}} </td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">NRC:</td>
+              <td>{%if factura.fk_receptor.nrc %}{{factura.fk_receptor.nrc}} {%else%} {%endif%}</td>
+            </tr>
+            <tr>
+              <td class="col1">Act. económica: </td>
+              <td>{{factura.fk_receptor.actividadeco.descripcion}} </td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">Dirección: </td>
+              <td>{{factura.fk_receptor.municipio.descripcion}}, {{factura.fk_receptor.municipio.departamento.descripcion}} </td>
+            </tr>
+            <tr>
+              <td class="col1">Correo: </td>
+              <td>{{factura.fk_receptor.email}} </td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">- </td>
+              <td> </td>
+            </tr>
+            <tr>
+              <td class="col1">- </td>
+              <td> </td>
+            </tr>
+            <tr class="gray-row">
+              <td class="col1">- </td>
+              <td> </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+      </table>
+        <div id="data" style="background-color:#ccc">
+          <span><b>Otros documentos asociados</b></span>
+          <div><table style="margin-top:5px"><tr><td>Identificación del documento: </td><td>Descripción: </td></tr></table></div>
+          <span><b>Venta a cuenta de terceros</b></span>
+          <div><div><table style="margin-top:5px"><tr><td>NIT: </td><td>Nombre, denominación o razón social: </td></tr></table></div>
+          <span><b>Documentos relacionados</b></span>
+          <div><div><table style="margin-top:5px"><tr><td>Tipo de Documento: </td><td>N° de documento </td><td>Fecha de documento: </td></tr></table></div>
+        </div>
+        <div id="content_data" class="details">
+            <table class="table">
+                <tr>
+                    <th style="width:30px">N°</th>
+                    <th style="width:30px">Qty</th>
+                    <th style="width:42px">Unidad</th>
+                    <th>Descripción</th>
+                    <th>Precio Uni.</th>
+                    <th>Desc. por item</th>
+                    <th>Otros montos no afectos</th>
+                    <th>No Sujetas</th>
+                    <th>Exentas</th>
+                    <th>Gravadas</th>
+                </tr>
+            {%for detalles in detalle%}
+                <tr>
+                    <td>{{detalles.id}}</td>
+                    <td>{{detalles.cantidad}}</td>
+                    <td>{{detalles.fk_Producto.unimedida.descripcion}}</td>
+                    <td>{{detalles.fk_Producto.descripcion }}</td>
+                    <td>${{detalles.precioUnitario|floatformat:decimal}}</td>
+                    <td>{%if detalles.fk_Producto.descUnidad%}${{detalles.fk_Producto.descUnidad|floatformat:decimal}}{%else%}$0.00 {%endif%}</td>
+                    <td>{% if detalle.fk_Producto.exentoIva == "S" %}${{detalles.total|floatformat:decimal}}{%else %}$0.00 {%endif %}</td>
+                    <td>$0.00</td>
+                    <td>{%if detalles.fk_Producto.exentoIva == "S"%}${{detalles.total|floatformat:decimal}}{%else %}$0.00{%endif %}</td>
+                    <td>{%if detalles.fk_Producto.exentoIva == "N"%}${{detalles.total|floatformat:decimal}}{%else %}$0.00{%endif %}</td>
+                </tr>
+                {%endfor%}
+                <tr>
+                  <td> </td>
+                  <td> </td>
+                  <td> </td>
+                  <td> </td>
+                  <td> </td>
+                  <td> </td>
+                  <td>Suma de ventas: </td>
+                  <td>$</td>
+                  <td>${{factura.totalExento|floatformat:decimal}}</td>
+                  <td>${{factura.totalnoExento|floatformat:decimal}}</td>
+              </tr>
+
+                </table>
+            <table>
+            </table>
+
+            <table class="table-detalle">
+  <tr>
+    <td class="columna1">Suma total de Operaciones</td>
+    <td class="columna2">${{factura.totalOperaciones|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">Monto global Desc. Rebajas y otros a ventas no sujetas</td>
+    <td class="columna2">$0.00</td>
+  </tr>
+  <tr>
+    <td class="columna1">Monto global Desc. Rebajas y otros a ventas excentas</td>
+    <td class="columna2">${{factura.descuExenta|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">Monto global Desc. Rebajas y otros a ventas gravadas</td>
+    <td class="columna2">${{factura.descuGravada|floatformat:decimal}}</td>
+  </tr>
+  {%if factura.fk_Identificacion.tipoDte.codigo == '03'%}
+  {%for trib in tributos%}
+  {%for val in valores%}
+  <tr>
+    <td class="columna1">{{trib}} </td>
+    <td class="columna2">{{factura.impuesTotal}} </td>
+  </tr>
+  {%endfor%}
+  {%endfor%}
+  {%endif%}
+  <tr>
+    <td class="columna1">Sub-total</td>
+    <td class="columna2">${{factura.subtotalconDescu|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">IVA Percibido</td>
+    <td class="columna2">$0.00</td>
+  </tr>
+  <tr>
+    <td class="columna1">IVA Retenido</td>
+    <td class="columna2">${{factura.ivaRete|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">Retención Renta</td>
+    <td class="columna2">${{factura.reteRenta|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">Monto Total de la Operación</td>
+    <td class="columna2">${{factura.subtotal|floatformat:decimal}}</td>
+  </tr>
+  <tr>
+    <td class="columna1">Total Otros montos no afectos</td>
+    <td class="columna2">$0.00</td>
+  </tr>
+  <tr>
+    <td class="columna1">Total a Pagar</td>
+    <td class="columna2">${{factura.subtotal|floatformat:decimal}}</td>
+  </tr>
+</table>
+</div>
+    </div>
+    <div id="data" style="background-color:#ccc;margin-bottom:10px">
+      <span><b>------ </b></span>
+      <table style="margin-top:5px"><tr><td>Valor en letras: </td><td>Condición de la operación: </td></tr><tr><td style="height:30px">Observaciones: </td></tr></table></div>
+      <div id="data" style="background-color:#ccc;margin-bottom:10px">
+        <span><b>Extensión: </b></span>
+        <table style="margin-top:5px"><tr><td>Responsable por parte del emisor: </td><td>N° de Documento: </td></tr><tr><td style="height:20px">Responsable por parte del receptor: </td> <td style="height:20px">Observaciones: </td></tr></table></div>
+</body>
+</html>

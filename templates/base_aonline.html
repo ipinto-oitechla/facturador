@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultorio Virtual | Login</title>
+    {% load static %}
+    <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+
+
+
+
+    <link rel="stylesheet"  href="{% static 'aonline/css/select-clinic.css' %}" >
+
+    <link rel="stylesheet"  href="{% static 'historialmed/css/bootstrap.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/font-awesome/css/font-awesome.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/sweetalert/sweetalert.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/animate.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/style.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/toastr/toastr.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/datapicker/datepicker3.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/clockpicker/clockpicker.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/blueimp/css/blueimp-gallery.min.css' %}" >
+    <link rel="stylesheet"  href="{% static 'historialmed/css/plugins/jasny/jasny-bootstrap.min.css' %}" >
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+</head>
+
+<body class="gray-bg">
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+
+            {% block main %}{% endblock %}
+            <h3>Bienvenido a Miconsultoriovirtual.net </h3>
+            <p>Software de Gestión de Consultorios Médicos.</p>
+            <p > <small>Software desarrollado por <strong>OI<font color="red">TECH</font>LA</strong></small> </p>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+
+<script src="{% static 'historialmed/js/jquery-3.1.1.min.js' %}"></script>
+<script src="{% static 'historialmed/js/popper.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/inspinia.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/pace/pace.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/blueimp/jquery.blueimp-gallery.min.js' %}"></script>
+<script src="{% static 'historialmed/js/bootstrap.js' %}"></script>
+
+ <!-- Ladda -->
+<script src="{% static 'historialmed/js/plugins/ladda/spin.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/ladda/ladda.jquery.min.js' %}"></script>
+
+<script src="{% static 'historialmed/js/plugins/sweetalert/sweetalert.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/datapicker/bootstrap-datepicker.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/clockpicker/clockpicker.js' %}"></script>
+<!-- Mainly scripts -->
+<script src="{% static 'historialmed/js/plugins/jasny/jasny-bootstrap.min.js' %}"></script>
+<script src="{% static 'historialmed/js/plugins/toastr/toastr.min.js' %}"></script>
+<script>
+    $(document).ready(function (){
+
+        $('#fechadec .input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: 'yyyy-mm-dd'
+           });
+    });
+ </script>
+</body>
+
+</html>

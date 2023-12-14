@@ -1,0 +1,70 @@
+{% extends 'base.html' %} {% load crispy_forms_tags %} {% load widget_tweaks %}
+{% load crispy_forms_tags %} {% load humanize %} {% load static %} {% load filter_functions %} 
+{% block nav-ws %}class="active"{% endblock %}
+{% block nav-smtp %}class="active"{% endblock %}
+
+{%block main%}
+<head>
+  <title>Detalle del SMTP</title>
+</head>
+<div class="ibox-content">
+  <h1><b>SMTP</b></h1>
+
+  <div class="d-flex flex-row align-items-center">
+    <div class="col-lg-8">
+      <div>
+        <h2>Host:</h2>
+        <input class="form-control" value=" {{ smtp.host }}" readonly />
+      </div>
+      <div>
+        <h2>Puerto:</h2>
+        <input class="form-control" value="{{ smtp.port }}" readonly />
+      </div>
+      <div class="form-check">
+        <h2>Usar tls:</h2>
+        <input
+          class="form-check-input-lg"
+          type="checkbox"
+          value="{{ smtp.use_tls }}"
+          {% if smtp.use_tls %}checked{% endif %}
+          disabled
+        />
+      </div>
+      <div>
+        <h2>Nombre de usuario:</h2>
+        <input
+          class="form-control"
+          value="{{ smtp.username }}"
+          readonly
+        />
+      </div>
+      <div>
+        <h2>Contaseña:</h2>
+        <div class="input-group">
+          <input class="form-control" value="{{ smtp.password }}" type="password" id="id_password" readonly />
+          <button class="btn btn-success input-group-addon toggle-password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mt-4">
+        <a href="{%url 'wsfacturae:SMTPUpdate' pk=smtp.id%}"><button class="btn col-12 btn-warning"><b>Editar</b></button></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    $(".toggle-password").click(function() {
+      let passwordField = $("#id_password");
+      let fieldType = passwordField.attr("type");
+
+      if (fieldType === "password") {
+        passwordField.attr("type", "text");
+      } else {
+        passwordField.attr("type", "password");
+      }
+    });
+  });
+</script>
+{%endblock%}
