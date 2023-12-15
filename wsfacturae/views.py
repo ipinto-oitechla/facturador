@@ -1065,7 +1065,7 @@ class MyJsonViewMixin:
                 'codigo': detalle.fk_Producto.codigo,
                 'uniMedida': int(detalle.fk_Producto.unimedida.codigo),
                 'descripcion': str(detalle.fk_Producto.descripcion),
-                'precioUni': float(detalle.fk_Producto.preciouni),                
+                'precioUni': float(detalle.precioUnitario),                
                 'montoDescu': float(detalle.montoDescu),
                 'ventaNoSuj': float(0.00),
                 'ventaExenta': float(detalle.total) if detalle.fk_Producto.exentoIva == 'S' else float(0.00),
@@ -1076,7 +1076,7 @@ class MyJsonViewMixin:
             }
             if factura_obj.fk_Identificacion.tipoDte.codigo == '01':
                 tributos_producto = tributo.objects.filter(productos__detallefactura__fk_Producto=detalle.fk_Producto, codigo__in=codtributos_factura).distinct()
-                detalle_dict['ivaItem'] = float(0)
+                detalle_dict['ivaItem'] = round((float(detalle.total) / 1.13) * 0.13, 2) if detalle.fk_Producto.exentoIva == 'N' else float(0.00)
                 detalle_dict['codTributo'] = tributos_producto.codigo if tributos_producto else None
             if factura_obj.fk_Identificacion.tipoDte.codigo == '03':
                 tributos_producto = tributo.objects.filter(productos__detallefactura__fk_Producto=detalle.fk_Producto, codigo__in=codtributos_credito_fiscal).distinct()
@@ -1107,11 +1107,13 @@ class MyJsonViewMixin:
         if factura_obj.fk_Identificacion.tipoDte.codigo == '03':
             tributos_queryset = tributo.objects.filter(productos__detallefactura__fk_factura=factura_obj).distinct()
 
+        sum_valores = 0
         for trib in tributos_queryset:
+            sum_valores += float(float(trib.valor) * float(factura_obj.totalnoExento))
             tributo_dict = {
                 'codigo': str(trib.codigo),
                 'descripcion': str(trib.descripcion),
-                'valor': float(trib.valor )
+                'valor': float(float(trib.valor) * float(factura_obj.totalnoExento) )
             }
             tributos.append(tributo_dict)
         
@@ -1125,13 +1127,13 @@ class MyJsonViewMixin:
             'descuGravada': float(factura_obj.descuGravada),
             'porcentajeDescuento': float(0),
             'totalDescu': float(factura_obj.descuTotal),
-            'tributos': tributos,
-            'subTotal': float(factura_obj.subtotalSinImpuestos),
+            'tributos': tributos if len(tributos) > 0 else None,
+            'subTotal': round(float(factura_obj.subtotal), 2),
             'ivaRete1': float(factura_obj.ivaRete),
             'reteRenta': float(factura_obj.reteRenta),
-            'montoTotalOperacion': float(factura_obj.totalOperaciones),
+            'montoTotalOperacion': float(factura_obj.subtotal - sum_valores),
             'totalNoGravado': float(0.00),
-            'totalPagar': float(factura_obj.totalPagar),
+            'totalPagar': round(float(factura_obj.totalPagar), 2),
             'totalLetras': str(utils.numero_a_letras(factura_obj.totalPagar)),
             'saldoFavor': float(0),
             'condicionOperacion': int(1),
@@ -1378,6 +1380,7 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
                 if item['tipo']=='2':
                     rete_Renta = (rete_Renta + float(item['subtotalSinImpuesto']))*0.10
                 if tipo_dte =='01':
+                    total_descuNoExento=round_numbers(float(item['descuentoConImp']))
                     total_Noexento=round_numbers(total_Noexento + subtotal)
                     total_Noexento_descuento =round_numbers(total_Noexento_descuento+subtotalDescu)  
                     total_noexento_sin_impuesto = round_numbers(total_noexento_sin_impuesto + totalSinImpuesto)
@@ -1480,8 +1483,11 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
             context['total_sin_impuesto'] = total_noexento_sin_impuesto + total_exento_sin_impuesto
         elif tipo_dte =='03':
             context['total_sin_impuesto'] = total_exento_descuento + total_Noexento_descuento
-            context["IVA"] = float(total_productos_gravados - descuentos_noexentos) * 0.13
+            #context["IVA"] = float(total_productos_gravados - descuentos_noexentos) * 0.13
         
+        context["IVA"] = float(total_productos_gravados - descuentos_noexentos) * 0.13
+        print("IVA ", context["IVA"])
+                
         if total_productos_gravados >= 100 and self.request.session['receptor'] is not None and self.request.session['receptor_es_gran_contr'] == 'S':
             iva_Retenido = round_numbers(total_productos_gravados * 0.01)
         
@@ -1496,10 +1502,16 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
         elif tipo_dte =='03':
             context['subtotalconDescu'] = total_Noexento_descuento + total_exento_descuento
         
-        context["totalAPagar"] = (context["subtotal"] - context["total_descuento_dte"]) + context["IVA"] - context["ivaRete"] - context['reteRenta']
+        if tipo_dte =='01':
+            context["totalAPagar"] = (context["subtotal"] - context["total_descuento_dte"]) - context["ivaRete"] - context['reteRenta']
+        if tipo_dte =='03':
+            context["totalAPagar"] = (context["subtotal"] - context["total_descuento_dte"]) + context["IVA"] - context["ivaRete"] - context['reteRenta']
 
         context['dte_object'] = get_object_or_404(detallemastercat, mastercat_id=2, codigo=self.kwargs.get('tipo_dte'))
         context['tipo_dte'] = self.kwargs.get('tipo_dte')
+
+        print("EXENTO ", context["descuExento"])
+        print("NOEXENTO ", context["descuNoExento"])
         
         return context
 
@@ -1680,24 +1692,24 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
                     factura.codigoFactura = utils.generate_random_code()
                     factura.totalExento = context['totalDescuExento']
                     factura.totalnoExento = context['totalDescuNoExento']
-                    factura.totalOperaciones = round_numbers(context['totalAPagar'])
+                    factura.totalOperaciones = round_numbers(context['totalDescuExento'] + context['totalDescuNoExento'])
                     factura.ivaRete = context["ivaRete"]
                     factura.reteRenta = context['reteRenta']
                     factura.descuExenta = context['descuentos_exentos_dte']
                     factura.descuGravada = context['descuentos_gravados_dte']
                     factura.impuesTotal = context['impuestos']
-                    factura.totalPagar = context['totalAPagar']
+                    factura.totalPagar = context["totalAPagar"]
                     factura.descuTotal = context['descuExento']+context['descuNoExento']+context['total_descuento_dte']
                     if dte_object.codigo =='01':
                         factura.subtotalconDescu = context['subtotalconDescu']
-                        factura.subtotal = factura.subtotalconDescu- context['ivaRete'] - context['reteRenta']
+                        factura.subtotal = context["totalAPagar"] + context["ivaRete"]
                     if dte_object.codigo =='03':
                         factura.subtotalconDescu = context['subtotalconDescu']+context['impuestos']
                         factura.subtotal = factura.subtotalconDescu- context['ivaRete'] -context['reteRenta']
                     
                     factura.subtotalSinImpuestos = float(context['total_sin_impuesto'])
                     factura.fk_emisor = emisor
-                    factura.totalIva = round_numbers(context['totalDescuNoExento'] * 0.13)
+                    factura.totalIva = round_numbers(context["IVA"])
                     identificacion = Identificacion()
                     identificacion.tipoDte = dte_object
                     if dte_object.codigo == '01':
@@ -1726,11 +1738,15 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
                         producto_obj = Productos.objects.get(descripcion=producto_nombre)
                         detalle.fk_Producto = producto_obj
                         detalle.cantidad = int(item['cantidad'])
-                        detalle.montoDescu = float(item['descuento'])
                         if dte_object.codigo == '01':
                             detalle.precioUnitario = float(item['preciouni'])
                             detalle.total = round_numbers(float(item['totalDescu']))
+                            if detalle.fk_Producto.exentoIva == 'S':
+                                detalle.montoDescu = float(item['descuento'])
+                            if detalle.fk_Producto.exentoIva == 'N':
+                                detalle.montoDescu = float(item['descuentoConImp'])
                         elif dte_object.codigo =='03' :
+                            detalle.montoDescu = float(item['descuento'])
                             detalle.precioUnitario = float((item['preciouniSinImpuesto']))
                             detalle.total = round_numbers(float(item['subtotalSinImpuesto'])-float(item['descuTotal']))
                         detalle.save()
@@ -1774,6 +1790,9 @@ class DteFormView(FormView, SuccessMessageMixin,LoginRequiredMixin, MyPDFViewMix
                         "json_data": json.loads(jsonFac.json)
                     }
                     print("ESTE ES EL TIPO DE DATO DEL JSON QUE SE ENVIA",type(data["json_data"]))
+                    total_pagar = data["json_data"]['resumen']['totalPagar']
+                    print("total pagar ", total_pagar)
+                    print("ESTE ES EL TIPO DE DATO DEL JSON QUE SE ENVIA DE TOTALPAGAR",type(total_pagar))
                     headers = {
                          "Content-Type": "application/json"
                     }

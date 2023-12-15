@@ -124,18 +124,21 @@ def generate_uuidv4():
 def numero_a_letras(numero):
     # Verificar si es un número decimal
     if "." in str(numero):
-        parte_entera, parte_decimal = str(numero).split(".")
-        parte_decimal = int(parte_decimal)
+        parte_entera, parte_decimal = str(round(numero,2)).split(".")
+        parte_decimal = int(float(parte_decimal))
         
         if parte_decimal == 0:
             numero_entero_en_letras = num2words(int(parte_entera), lang='es')
-            numero_en_letras = numero_entero_en_letras
+            numero_en_letras = numero_entero_en_letras +" dolares"
         else:
             numero_entero_en_letras = num2words(int(parte_entera), lang='es')
-            numero_decimal_en_letras = num2words(parte_decimal, lang='es')
-            numero_en_letras = f"{numero_entero_en_letras} punto {numero_decimal_en_letras}"
+            if parte_decimal < 10:
+                parte_decimal_str = f"{num2words(parte_decimal*10, lang='es')}"
+            else:
+                parte_decimal_str = num2words(parte_decimal, lang='es')
+            numero_en_letras = f"{numero_entero_en_letras} dolares con {parte_decimal_str} centavos"
     else:
-        numero_en_letras = num2words(numero, lang='es')
+        numero_en_letras = f"{num2words(numero, lang='es')} dolares"
     
     return numero_en_letras
 
